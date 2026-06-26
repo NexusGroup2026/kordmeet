@@ -556,42 +556,66 @@ function initApp() {
         }
     }
 
-    // FIREBASE DATABASE FETCH (Real-time update)
+    // FIREBASE DATABASE FETCH (Real-time update) with local JSON fallback
     const fetchFromFirebase = () => {
-        try {
-            if (typeof firebase === 'undefined' || !firebase.apps.length) {
-                throw new Error("Firebase not ready");
+        const loadFromFirebase = () => {
+            try {
+                if (typeof firebase === 'undefined' || !firebase.apps.length) {
+                    throw new Error("Firebase not ready");
+                }
+
+                const dbRef = firebase.database().ref('tools');
+                let firebaseLoaded = false;
+
+                dbRef.on('value', (snap) => {
+                    const data = snap.val();
+
+                    if (!data) {
+                        console.log("[Database] Banco Firebase vazio. Usando fallback local...");
+                        if (!firebaseLoaded) loadLocalFallback();
+                    } else {
+                        firebaseLoaded = true;
+                        const rawList = Array.isArray(data) ? data : Object.values(data);
+                        const newList = rawList.filter(item => item !== null && typeof item === 'object' && item.name);
+
+                        if (JSON.stringify(newList) === JSON.stringify(allItems)) return;
+
+                        allItems = newList;
+                        console.log("[Database] " + allItems.length + " IAs sincronizadas do Firebase.");
+
+                        displayedCount = 0;
+                        grid.innerHTML = '';
+                        renderBatch();
+                    }
+                }, (err) => {
+                    console.warn("[Database] Firebase listener error, usando fallback:", err.message);
+                    loadLocalFallback();
+                });
+            } catch (err) {
+                console.warn("[Database] Firebase indisponivel, usando fallback local:", err.message);
+                loadLocalFallback();
             }
+        };
 
-            const dbRef = firebase.database().ref('tools');
-
-            // Usar .on('value') para atualizações instantâneas
-
-            dbRef.on('value', (snap) => {
-                const data = snap.val();
-
-                if (!data) {
-                    console.log("[Database] Banco Firebase vazio.");
-                    grid.innerHTML = '<div style="color:#aaa; text-align:center; padding:40px;">📭 Nenhuma IA encontrada no banco.</div>';
-                } else {
+        const loadLocalFallback = () => {
+            console.log("[Database] Carregando ai_database.json local...");
+            fetch('ai_database.json')
+                .then(r => r.json())
+                .then(data => {
                     const rawList = Array.isArray(data) ? data : Object.values(data);
-                    const newList = rawList.filter(item => item !== null && typeof item === 'object' && item.name);
-
-                    if (JSON.stringify(newList) === JSON.stringify(allItems)) return;
-
-                    allItems = newList;
-                    console.log(`[Database] ${allItems.length} IAs sincronizadas.`);
-
-                    // Reset e re-render apenas se necessário
+                    allItems = rawList.filter(item => item !== null && typeof item === 'object' && item.name);
+                    console.log("[Database] " + allItems.length + " IAs carregadas do arquivo local.");
                     displayedCount = 0;
                     grid.innerHTML = '';
                     renderBatch();
-                }
-            });
-        } catch (err) {
-            console.error("[Database] Erro fatal:", err);
-            grid.innerHTML = '<div style="color:#ffaa00; text-align:center; padding:40px;">⚠️ Erro de conexão com o Banco Firebase.</div>';
-        }
+                })
+                .catch(err => {
+                    console.error("[Database] Fallback local tambem falhou:", err);
+                    grid.innerHTML = '<div style="color:#ef4444; text-align:center; padding:40px;">📭 Nenhuma IA encontrada — Firebase offline e arquivo local indisponivel.</div>';
+                });
+        };
+
+        loadFromFirebase();
     };
 
     fetchFromFirebase();
