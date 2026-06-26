@@ -1,0 +1,1 @@
+arrume o real time em todo o site sem exeçao todo o site e em todas as funçoes sem exeçao e todas as açoes precisam ser calcuradas em real time com 0,01 ms de resposta

@@ -1,0 +1,426 @@
+{
+    "rules": {
+        ".read": false,
+        ".write": false,
+
+        "users": {
+            "$uid": {
+                ".read": "auth != null && auth.uid === $uid",
+                ".write": "auth != null && auth.uid === $uid",
+                ".validate": "newData.hasChildren(['email']) && newData.email.isString()",
+
+                "email": {
+                    ".validate": "newData.isString() && newData.val().matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$')"
+                },
+
+                "profile": {
+                    ".validate": "newData.hasChildren()",
+                    "displayName": {
+                        ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 50 && !newData.val().matches('[<>\\\"\\\\'])'"
+                    },
+                    "bio": {
+                        ".validate": "newData.isString() && newData.val().length <= 500"
+                    },
+                    "customCSS": {
+                        ".validate": "newData.isString() && newData.val().length < 5000 && !newData.val().matches('expression\\\\(|javascript:|url\\\\(|@import)'"
+                    }
+                },
+
+                "subscription_expires_at": {
+                    ".validate": "newData.isNumber() && newData.val() > 0"
+                },
+
+                "$other": {
+                    ".validate": "false"
+                }
+            }
+        },
+
+        "nicknames": {
+            "$nick": {
+                ".read": "auth != null",
+                ".write": "auth != null && auth.uid === root.child('users').child(auth.uid).child('nickname').val()",
+                ".validate": "$nick.isString() && $nick.length >= 3 && $nick.length <= 30 && !$nick.matches('[.#$\\\\[\\\\]\\\\/])'"
+            }
+        },
+
+        "servers": {
+            "$serverId": {
+                ".read": "auth != null && auth.uid != null",
+                ".write": "auth != null && auth.uid != null",
+                ".validate": "newData.hasChildren(['name', 'createdAt']) && newData.name.isString() && newData.name.val().length < 200",
+
+                "name": {
+                    ".validate": "newData.isString() && !newData.val().matches('(<script|javascript:|on\\\\w+=|<iframe)')"
+                },
+
+                "ownerId": {
+                    ".validate": "newData.isString() && newData.val().length > 0"
+                },
+
+                "channels": {
+                    "$channelId": {
+                        ".write": "auth != null && auth.uid === root.child('users').child(auth.uid).val()",
+                        ".validate": "$channelId.isString() && $channelId.length < 50",
+
+                        "messages": {
+                            "$msgId": {
+                                ".write": "auth != null && auth.uid === root.child('users').child(auth.uid).val()",
+                                ".validate": "newData.hasChildren(['authorId', 'text', 'time']) && newData.text.isString() && newData.text.val().length < 4000 && !newData.text.val().matches('(<script|javascript:|on\\\\w+=|<iframe)') && newData.authorId.isString() && newData.time.isNumber()",
+
+                                "text": {
+                                    ".validate": "newData.isString() && !newData.val().matches('(<script|javascript:|onerror=|onload=|onclick=)')"
+                                },
+                                "authorId": {
+                                    ".validate": "newData.isString() && newData.val() === auth.uid"
+                                }
+                            }
+                        }
+                    }
+                },
+
+                "members": {
+                    "$uid": {
+                        ".write": "auth != null && auth.uid === $uid",
+                        ".validate": "newData.hasChildren(['joinedAt']) && newData.joinedAt.isNumber()"
+                    }
+                },
+
+                "pinnedMessages": {
+                    ".write": "auth != null && auth.uid === data.child('ownerId').val()"
+                },
+
+                "settings": {
+                    ".write": "auth != null && auth.uid === root.child('servers').child($serverId).child('ownerId').val()"
+                }
+            }
+        },
+
+        "forums": {
+            "$forumId": {
+                ".read": "auth != null",
+                ".write": "auth != null",
+                ".validate": "newData.hasChildren(['authorId', 'title', 'content', 'time']) && newData.authorId.isString() && newData.title.val().length < 200 && newData.content.val().length < 10000",
+
+                "title": {
+                    ".validate": "newData.isString() && !newData.val().matches('(<script|javascript:)')"
+                },
+
+                "content": {
+                    ".validate": "newData.isString() && !newData.val().matches('(<script|javascript:|onerror=)')"
+                },
+                "authorId": {
+                    ".validate": "newData.isString() && newData.val() === auth.uid"
+                }
+            }
+        },
+
+        "voice_rooms": {
+            "$roomId": {
+                ".read": "auth != null",
+                ".write": "auth != null",
+
+                "participants": {
+                    "$uid": {
+                        ".write": "auth != null && auth.uid === $uid",
+                        ".validate": "newData.hasChildren(['displayName', 'active']) && newData.displayName.val().length < 50 && !newData.displayName.val().matches('[<>\\\"\\\\']')"
+                    }
+                },
+
+                "audio_chunks": {
+                    "$uid": {
+                        ".write": "auth != null && auth.uid === $uid",
+                        ".validate": "newData.hasChildren(['data', 'timestamp']) && newData.data.isString() && newData.data.val().length < 100000 && newData.timestamp.isNumber()"
+                    }
+                },
+
+                "settings": {
+                    ".write": "auth != null"
+                }
+            }
+        },
+
+        "friendships": {
+            "$uid": {
+                "$friendUid": {
+                    ".read": "auth != null && (auth.uid === $uid || auth.uid === $friendUid)",
+                    ".write": "auth != null && (auth.uid === $uid || auth.uid === $friendUid)",
+                    ".validate": "newData.isBoolean() && newData.val() === true"
+                }
+            }
+        },
+
+        "friend_requests": {
+            "$toUid": {
+                "$fromUid": {
+                    ".read": "auth != null && (auth.uid === $toUid || auth.uid === $fromUid)",
+                    ".write": "auth != null && auth.uid === $fromUid",
+                    ".validate": "newData.isBoolean() && newData.val() === true"
+                }
+            }
+        },
+
+        "blocked_users": {
+            "$uid": {
+                ".read": "auth != null && auth.uid === $uid",
+                ".write": "auth != null && auth.uid === $uid"
+            }
+        },
+
+        "direct_messages": {
+            "$chatId": {
+                ".read": "auth != null && (auth.uid === $chatId.split('_')[0] || auth.uid === $chatId.split('_')[1])",
+                ".write": "auth != null && (auth.uid === $chatId.split('_')[0] || auth.uid === $chatId.split('_')[1])",
+                ".validate": "newData.hasChildren(['participants', 'lastMessage']) && newData.participants.hasChildren([auth.uid])",
+
+                "messages": {
+                    "$msgId": {
+                        ".write": "auth != null && (auth.uid === $chatId.split('_')[0] || auth.uid === $chatId.split('_')[1])",
+                        ".validate": "newData.hasChildren(['text', 'time', 'senderId']) && newData.text.isString() && newData.text.val().length < 4000 && !newData.text.val().matches('(<script|javascript:|onerror=|<iframe)') && newData.senderId.isString() && newData.senderId === auth.uid && newData.time.isNumber()"
+                    }
+                }
+            }
+        },
+
+        "groups": {
+            "$groupId": {
+                ".read": "auth != null && data.child('members').child(auth.uid).exists()",
+                ".write": "auth != null && (data.child('ownerId').val() === auth.uid || data.child('admins').child(auth.uid).exists())",
+                ".validate": "newData.hasChildren(['name', 'ownerId', 'members']) && newData.name.val().length < 100",
+
+                "name": {
+                    ".validate": "newData.isString() && !newData.val().matches('[<>\\\"\\\\']')"
+                },
+                "ownerId": {
+                    ".validate": "newData.isString() && newData.val() === auth.uid"
+                },
+                "members": {
+                    "$uid": {
+                        ".write": "auth != null && (data.child('ownerId').val() === auth.uid || auth.uid === $uid)"
+                    }
+                },
+
+                "messages": {
+                    "$msgId": {
+                        ".write": "auth != null && data.child('members').child(auth.uid).exists()",
+                        ".validate": "newData.hasChildren(['text', 'time', 'senderId']) && newData.text.isString() && newData.text.val().length < 4000 && newData.senderId.isString() && newData.senderId === auth.uid && newData.time.isNumber()"
+                    }
+                }
+            }
+        },
+
+        "global_notifications": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')"
+        },
+
+        "file_shares": {
+            "$shareId": {
+                ".read": "auth != null",
+                ".write": "auth != null && auth.uid === $shareId.split('_')[0]",
+                ".validate": "newData.hasChildren(['uploaderId', 'filename', 'url', 'timestamp']) && newData.uploaderId.isString() && newData.uploaderId === auth.uid && newData.filename.isString() && newData.url.isString()"
+            }
+        },
+
+        "presence": {
+            "$uid": {
+                ".read": "auth != null",
+                ".write": "auth != null && auth.uid === $uid",
+                ".validate": "newData.hasChildren(['status', 'lastSeen']) && newData.status.isString() && newData.lastSeen.isNumber()"
+            }
+        },
+
+        "typing_indicators": {
+            "$uid": {
+                ".read": "auth != null",
+                ".write": "auth != null && auth.uid === $uid",
+                ".validate": "newData.hasChildren(['channelId', 'timestamp']) && newData.channelId.isString() && newData.timestamp.isNumber()"
+            }
+        },
+
+        "system_config": {
+            ".read": true,
+            ".write": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')"
+        },
+
+        "changelog": {
+            ".read": true,
+            ".write": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+
+            "$entryId": {
+                ".validate": "newData.hasChildren(['title', 'timestamp']) && newData.title.val().length < 200 && newData.description.val().length < 5000"
+            }
+        },
+
+        "popular_stats": {
+            ".read": true,
+
+            "$week_id": {
+                "$tool_id": {
+                    ".write": "(!data.exists() && newData.isNumber() && newData.val() >= 0 && newData.val() <= 999999) || (auth != null && newData.isNumber())"
+                }
+            }
+        },
+
+        "search_activity": {
+            ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+            ".write": "auth != null",
+
+            "$entry_id": {
+                ".validate": "newData.hasChildren(['query', 'timestamp', 'userId']) && newData.query.isString() && newData.query.val().length < 100 && newData.query.val().matches('^[a-zA-Z0-9\\\\s\\\\-_]+$') && newData.userId.isString() && newData.userId === auth.uid"
+            }
+        },
+
+        "access_logs": {
+            ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+            ".write": "auth != null",
+
+            "$entry_id": {
+                ".validate": "newData.hasChildren(['timestamp', 'userAgent', 'userId']) && newData.userAgent.isString() && newData.userAgent.val().length < 500 && newData.userId.isString() && newData.userId === auth.uid"
+            }
+        },
+
+        "discovery_queue": {
+            ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+            ".write": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+
+            "$entry_id": {
+                ".validate": "newData.isString() && newData.val().length > 2 && newData.val().length < 100 && !newData.val().matches('[<>\\\"\\\\']')"
+            }
+        },
+
+        "discovery_history": {
+            ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+            ".write": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')"
+        },
+
+        "bug_reports": {
+            "$report_id": {
+                ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+                ".write": "auth != null",
+                ".validate": "newData.hasChildren(['type', 'description', 'timestamp', 'userId']) && newData.description.isString() && newData.description.val().length < 2000 && newData.type.isString() && newData.type.val().length < 50 && newData.userId.isString() && newData.userId === auth.uid"
+            }
+        },
+
+        "supporters": {
+            ".read": true,
+
+            "$key": {
+                ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.uid === $key || data.child('email').val() === auth.token.email)",
+
+                "email": {
+                    ".validate": "newData.isString() && newData.val().matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$')"
+                },
+
+                "total_amount": {
+                    ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000"
+                }
+            }
+        },
+
+        "message_reports": {
+            "$report_id": {
+                ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+                ".write": "auth != null",
+                ".validate": "newData.hasChildren(['reporterId', 'timestamp', 'messageId', 'reason']) && newData.messageText.isString() && newData.messageText.val().length < 2000 && newData.reporterId.isString() && newData.reporterId === auth.uid"
+            }
+        },
+
+        "tools": {
+            ".read": true,
+            ".write": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+
+            "$toolId": {
+                ".validate": "newData.hasChildren(['name', 'url']) && newData.name.isString() && newData.name.val().length < 200 && newData.url.isString() && newData.url.val().matches('^https?://')",
+
+                "name": {
+                    ".validate": "newData.isString() && !newData.val().matches('[<>\\\"\\\\']')"
+                }
+            }
+        },
+
+        "admin_actions": {
+            ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+            ".write": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')"
+        },
+
+        "verified_donations": {
+            ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+
+            "$txnId": {
+                ".write": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')"
+            }
+        },
+
+        "webrtc_rooms": {
+            "$roomId": {
+                ".read": "auth != null && data.child('participants').child(auth.uid).exists()",
+                ".write": "auth != null",
+                ".validate": "newData.hasChildren(['createdAt', 'createdBy']) && newData.createdAt.isNumber() && newData.createdBy.isString()",
+
+                "participants": {
+                    "$uid": {
+                        ".write": "auth != null && auth.uid === $uid",
+                        ".validate": "newData.hasChildren(['displayName', 'active']) || newData.hasChildren(['active', 'lastSeen'])",
+                        "screenShare": {
+                            ".write": "auth != null && auth.uid === $uid"
+                        },
+                        "screenFrame": {
+                            ".write": "auth != null && auth.uid === $uid"
+                        },
+                        "screenFrameTime": {
+                            ".write": "auth != null && auth.uid === $uid"
+                        },
+                        "displayName": {
+                            ".validate": "newData.isString() && newData.val().length < 50"
+                        },
+                        "$other": {
+                            ".validate": "true"
+                        }
+                    }
+                },
+
+                "audio_chunks": {
+                    "$uid": {
+                        ".write": "auth != null && auth.uid === $uid && data.parent.parent.child('participants').child(auth.uid).exists()",
+                        ".validate": "newData.hasChildren(['data', 'mime', 'timestamp']) && newData.data.isString() && newData.data.val().length < 200000 && newData.mime.isString() && newData.timestamp.isNumber()"
+                    }
+                }
+            }
+        },
+
+        "transactions": {
+            ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+
+            "$txId": {
+                ".write": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')"
+            }
+        },
+
+        "error_reports": {
+            "$reportId": {
+                ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')",
+                ".write": "auth != null",
+                ".validate": "newData.hasChildren(['message', 'stack', 'timestamp', 'userId', 'userAgent']) && newData.message.isString() && newData.stack.isString() && newData.timestamp.isNumber() && newData.userId.isString() && newData.userId === auth.uid && newData.userAgent.isString()"
+            }
+        },
+
+        "_honeypot_logs": {
+            ".write": true,
+            ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')"
+        },
+
+        "_rate_limits": {
+            "$uid": {
+                ".read": "auth != null && auth.uid === $uid",
+                ".write": "auth != null && auth.uid === $uid",
+                ".validate": "newData.hasChildren(['count', 'windowStart']) && newData.count.isNumber() && newData.windowStart.isNumber()"
+            }
+        },
+
+        "_security_events": {
+            ".write": true,
+            ".read": "auth != null && auth.token.email.matches('moisesvvanti@gmail.com')"
+        }
+    }
+}

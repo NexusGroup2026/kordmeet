@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Acesso Bloqueado | Kord</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            color: #ef4444;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .container { max-width: 500px; padding: 20px; }
+        .icon { font-size: 80px; margin-bottom: 20px; }
+        h1 { font-size: 48px; margin-bottom: 16px; color: #fff; font-weight: 800; }
+        p { color: #94a3b8; font-size: 18px; line-height: 1.6; margin-bottom: 20px; }
+        .code {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: #f87171;
+            font-family: monospace;
+            font-size: 14px;
+            display: inline-block;
+        }
+        .footer { margin-top: 40px; color: #64748b; font-size: 14px; }
+        a { color: #6366f1; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🚫</div>
+        <h1>ACESSO BLOQUEADO</h1>
+        <p>Sua solicitação foi bloqueada pelo sistema de segurança do Kord. Isso geralmente ocorre quando:</p>
+        <ul style="text-align:left; color:#94a3b8; margin: 20px 0 20px 40px;">
+            <li>Detectamos atividade suspeita</li>
+            <li>Violação das políticas de uso</li>
+            <li>Múltiplas tentativas falhas</li>
+        </ul>
+        <p>Se você acredita que isso é um erro, entre em contato com o suporte.</p>
+        <div class="code">INCIDENTE: <span id="code"></span></div>
+        <div class="footer">
+            <a href="https://kord.gg">Voltar ao Kord</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById('code').textContent = Date.now().toString(36).toUpperCase();
+    </script>
+</body>
+</html>

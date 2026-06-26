@@ -1,0 +1,48 @@
+{
+  "name": "kord-desktop",
+  "version": "1.0.0",
+  "description": "Kord.gg - Your AI-Powered Communication Platform",
+  "main": "electron/main.js",
+  "author": "Moises Vianna Vanti",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder --win",
+    "build:portable": "electron-builder --win portable"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "astral-regex": "^2.0.0",
+    "slice-ansi": "^9.0.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-packager": "^17.1.2",
+    "electron-store": "^8.1.0"
+  },
+  "build": {
+    "appId": "com.kord.gg",
+    "productName": "Kord",
+    "copyright": "Copyright © 2024 Moises Vianna Vanti - kord.gg",
+    "directories": {
+      "output": "dist",
+      "buildResources": "electron/build"
+    },
+    "files": [
+      "electron/**/*",
+      "**/*.html",
+      "assets/**/*",
+      "firebase-messaging-sw.js"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "Kord-${version}-Portable.${ext}"
+    }
+  }
+}

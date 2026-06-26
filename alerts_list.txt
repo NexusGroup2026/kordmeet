@@ -1,0 +1,257 @@
+﻿
+assets\js\kord_auth.js:44:    if (!email || !pass) return showKordAlert("Campos Vazios", "Preencha todos os campos 
+para prosseguir.", "warning", "#f59e0b");
+assets\js\kord_auth.js:48:            showKordAlert("Sucesso", "Login bem-sucedido!", "check_circle", "#10b981");
+assets\js\kord_auth.js:51:            showKordAlert("Erro no Login", error.message, "error", "#ef4444");
+assets\js\kord_auth.js:63:    if (!email || !pass) return showKordAlert("Campos Obrigatórios", "Preencha email e 
+senha.", "warning", "#f59e0b");
+assets\js\kord_auth.js:64:    if (pass.length < 6) return showKordAlert("Senha Fraca", "A senha deve ter no mínimo 6 
+caracteres.", "warning", "#f59e0b");
+assets\js\kord_auth.js:104:            showKordAlert("Conta Criada!", `Bem-vindo ${displayName}! Seu perfil foi criado 
+com sucesso.`, "celebration", "#10b981");
+assets\js\kord_auth.js:107:            showKordAlert("Erro ao Criar Conta", error.message, "error", "#ef4444");
+assets\js\kord_auth.js:138:        return showKordAlert("Arquivo Grande", "A foto deve ter no máximo 500KB.", 
+"warning", "#f59e0b");
+assets\js\kord_auth.js:153:        showKordAlert("Sessão Encerrada", "Logout realizado com sucesso.", "logout", 
+"#94a3b8");
+assets\js\kord_bridge.js:16:                showKordAlert("PC Otimizado", status, "speed", "#10b981");
+assets\js\kord_bridge.js:42:        showKordAlert("Salvo", "Sua Groq API Key foi salva com sucesso.", "save", 
+"#10b981");
+assets\js\kord_bridge.js:48:        showKordAlert("Desconectado", "O backend Python não está respondendo ou não está 
+conectado.", "link_off", "#ef4444");
+assets\js\kord_core.js:46:function showKordModal({ title, desc, icon, iconColor, inputPlaceholder, showSelect, 
+confirmText, cancelText, onConfirm, onCancel }) {
+assets\js\kord_core.js:133:function showKordAlert(title, desc, icon, color) {
+assets\js\kord_core.js:280:            showKordAlert("Copiado!", "Link copiado para a área de transferência.", 
+"content_copy", "#10b981");
+assets\js\kord_core.js:293:            showKordAlert("Copiado!", "Link copiado para a área de transferência.", 
+"content_copy", "#10b981");
+assets\js\kord_core.js:301:function showKordConfirm(title, desc, onConfirm, onCancel) {
+assets\js\kord_core.js:302:    showKordModal({
+assets\js\kord_core.js:314:function showKordPrompt(title, desc, placeholder, onConfirm) {
+assets\js\kord_core.js:315:    showKordModal({
+assets\js\kord_core.js:522:    showKordConfirm(
+assets\js\kord_core.js:675:        return showKordAlert("Acesso Negado", "Apenas o dono ou super-admin pode excluir.", 
+"lock", "#ef4444");
+assets\js\kord_core.js:678:    showKordConfirm(
+assets\js\kord_core.js:705:            showKordAlert("Servidor Excluído", "O servidor foi removido com sucesso.", 
+"delete", "#ef4444");
+assets\js\kord_core.js:721:        showKordModal({
+assets\js\kord_core.js:736:                        showKordAlert("Salvo", "Configurações atualizadas!", 
+"check_circle", "#10b981");
+assets\js\kord_core.js:783:                if (file.size > 500000) return showKordAlert("Arquivo grande", "Máximo 
+500KB.", "error", "#ef4444");
+assets\js\kord_core.js:898:        showKordAlert("Convite Copiado!", `Código de Convite copiado para a área de 
+transferência:<br><br><b style="color:#fff;">${inviteLink}</b><br><br>Compartilhe com seus amigos para eles entrarem 
+usando o botão Explorar.`, "content_copy", "#10b981");
+assets\js\kord_core.js:906:    if (!currentUser) return showKordAlert("Atenção", "Faça login via Kord Auth para criar 
+comunidades.", "gpp_bad", "#ef4444");
+assets\js\kord_core.js:909:    showKordModal({
+assets\js\kord_core.js:938:                showKordModal({
+assets\js\kord_core.js:948:                showKordAlert("Erro ao Criar", "Houve um erro no Firebase: " + e.message, 
+"error", "#ef4444");
+assets\js\kord_core.js:981:            if (file.size > 500000) return showKordAlert("Arquivo grande", "A foto deve ter 
+menos de 500KB.", "error", "#ef4444");
+assets\js\kord_core.js:995:        return showKordAlert("Acesso Negado", "Apenas o dono do servidor pode criar 
+canais.", "lock", "#ef4444");
+assets\js\kord_core.js:998:    showKordModal({
+assets\js\kord_core.js:1008:            if (!name) return showKordAlert("Erro", "O nome do canal não pode ser vazio.", 
+"error", "#ef4444");
+assets\js\kord_core.js:1019:                showKordAlert("Erro", "Falha ao criar canal: " + e.message, "error", 
+"#ef4444");
+assets\js\kord_core.js:1026:    if (!currentUser) return showKordAlert("Atenção", "Faça login para entrar em 
+comunidades.", "gpp_bad", "#ef4444");
+assets\js\kord_core.js:1028:    showKordModal({
+assets\js\kord_core.js:1047:                    showKordAlert("Sucesso", "Você entrou no Grupo DM!", "check_circle", 
+"#10b981");
+assets\js\kord_core.js:1054:                    showKordAlert("Erro", "Convite de grupo inválido.", "error", 
+"#ef4444");
+assets\js\kord_core.js:1067:                    showKordAlert("Aviso", "Você já faz parte deste servidor.", "info", 
+"#6366f1");
+assets\js\kord_core.js:1075:                    return showKordAlert("Erro", "Servidor não encontrado ou convite 
+inválido.", "error", "#ef4444");
+assets\js\kord_core.js:1084:                        showKordAlert("Redirecionado", "Você já possui este servidor 
+(mesmo nome/dono). Redirecionando...", "info", "#6366f1");
+assets\js\kord_core.js:1092:                    showKordAlert("Bem-vindo!", `Você entrou em <b>${sData.name}</b>!`, 
+"celebration", "#10b981");
+assets\js\kord_core.js:1156:        if (!isSuperAdmin) return showKordAlert("Acesso Restrito", "Apenas o email 
+moisesvvanti@gmail.com pode postar em Fóruns de Atualizações.", "lock", "#ef4444");
+assets\js\kord_core.js:1186:    showKordAlert("CONTA BANIDA", "Violação detectedada (Pornografia/Pedofilia). Sua conta 
+foi deletada permanentemente.", "report_problem", "#ef4444");
+assets\js\kord_core.js:1478:    if (!key) return showKordAlert("Erro", "Insira uma chave válida!", "error", "#ef4444");
+assets\js\kord_core.js:1489:        showKordAlert("Salvando...", "Sincronizando chave com a nuvem...", "cloud_upload", 
+"#6366f1");
+assets\js\kord_core.js:1499:            showKordAlert("Cloud Sync", "Chave salva com sucesso em sua conta!", 
+"cloud_done", "#22c55e");
+assets\js\kord_core.js:1502:            showKordAlert("Erro Cloud", "Salva apenas localmente: " + e.message, 
+"warning", "#f59e0b");
+assets\js\kord_core.js:1505:        showKordAlert("Sucesso", "Chave salva localmente! Logue para sincronizar na 
+nuvem.", "check_circle", "#22c55e");
+assets\js\kord_core.js:1711:            return showKordAlert("Ação Negada", "Apenas o super-admin pode modificar 
+mensagens no Fórum de Atualizações.", "lock", "#ef4444");
+assets\js\kord_core.js:1714:            return showKordAlert("Ação Negada", "Você não tem permissão para modificar 
+esta mensagem.", "lock", "#ef4444");
+assets\js\kord_core.js:1720:        showKordAlert("Copiado!", "Texto da mensagem copiado.", "content_copy", "#6366f1");
+assets\js\kord_core.js:1723:        showKordAlert("ID Copiado", `ID: ${currentContextMsgId}`, "fingerprint", 
+"#94a3b8");
+assets\js\kord_core.js:1727:        showKordAlert("Link Copiado", "Link direto para a mensagem.", "link", "#6366f1");
+assets\js\kord_core.js:1737:        showKordConfirm("Deletar Mensagem", "Tem certeza que deseja apagar esta mensagem 
+permanentemente?", () => {
+assets\js\kord_core.js:1753:        showKordPrompt("Editar Mensagem", "Altere o conteúdo da sua mensagem:", 
+currentContextMsgText, (newTxt) => {
+assets\js\kord_core.js:1762:                showKordAlert("Editado", "Mensagem atualizada.", "edit", "#6366f1");
+assets\js\kord_core.js:1771:        showKordAlert("Fixada", "Mensagem fixada no servidor.", "push_pin", "#f59e0b");
+assets\js\kord_core.js:1784:            showKordAlert("Encaminhado", "Mensagem copiada para colar em outro canal.", 
+"shortcut", "#6366f1");
+assets\js\kord_core.js:1788:        showKordConfirm("Notificar Todos", "Deseja enviar uma notificação global com esta 
+mensagem?", () => {
+assets\js\kord_core.js:1794:            showKordAlert("Notificação Enviada", "Todos os usuários online foram 
+notificados.", "campaign", "#a78bfa");
+assets\js\kord_core.js:1804:            showKordAlert("Bloqueado", "As mensagens deste usuário foram ocultadas para 
+você. Apenas você verá esta mudança.", "block", "#ef4444");
+assets\js\kord_core.js:1813:        showKordAlert("Desbloqueado", "As mensagens deste usuário voltaram a ser 
+visíveis.", "lock_open", "#10b981");
+assets\js\kord_core.js:1820:            showKordAlert("Em breve", "O App Store do Kord será implementado na próxima 
+atualização.", "construction", "#f59e0b");
+assets\js\kord_core.js:1829:                showKordAlert("Não Lida", "Canal marcado como não lido localmente.", 
+"mark_as_unread", "#6366f1");
+assets\js\kord_core.js:1840:                    showKordAlert("Erro", "Este usuário não possui um email PayPal 
+configurado.", "error", "#ef4444");
+assets\js\kord_core.js:1845:        showKordAlert("Em breve", `A ação \"${action}\" será implementada na próxima 
+atualização.`, "construction", "#f59e0b");
+assets\js\kord_core.js:1890:        if (typeof showKordAlert === 'function') {
+assets\js\kord_core.js:1891:            showKordAlert("NOTIFICAÇÃO GLOBAL", n.text, "campaign", "#a78bfa");
+assets\js\kord_core.js:1899:    showKordConfirm("Sair do Servidor", "Tem certeza que deseja sair deste servidor?", () 
+=> {
+assets\js\kord_core.js:1901:            showKordAlert("Saiu", "Você saiu do servidor com sucesso.", "logout", 
+"#ef4444");
+assets\js\kord_core.js:1912:    if (!prompt) return showKordAlert("Erro", "Descreva um estilo para a IA!", "warning", 
+"#f59e0b");
+assets\js\kord_core.js:1917:    showKordAlert("Designer IA", "A IA está projetando seu novo ambiente...", 
+"auto_fix_high", "#a78bfa");
+assets\js\kord_core.js:1959:        showKordAlert("Vibe Gerada!", `Estilo "${res.alert || 'Personalizado'}" pronto 
+para salvar.`, "auto_fix_high", res.primary || "#a78bfa");
+assets\js\kord_core.js:1970:        showKordAlert("Erro no Designer", errorMsg, "error", "#ef4444");
+assets\js\kord_core.js:2265:                if (type === 'sticker') showKordAlert("Sucesso", "Figurinha salva na sua 
+coleção!", "check_circle", "#10b981");
+assets\js\kord_core.js:2266:                else showKordAlert("Sucesso", "GIF favoritado!", "star", "#fbbf24");
+assets\js\kord_core.js:2269:            if (type === 'sticker') showKordAlert("Info", "Você já salvou esta 
+figurinha.", "info", "#3b82f6");
+assets\js\kord_core.js:2270:            else showKordAlert("Info", "Você já favoritou este GIF.", "info", "#3b82f6");
+assets\js\kord_core.js:2286:    if (file.size > 5 * 1024 * 1024) return showKordAlert("Erro", "Figurinha deve ter no 
+máximo 5MB.", "warning", "#f59e0b");
+assets\js\kord_core.js:2290:        showKordAlert("Enviando", "Sua figurinha está sendo enviada...", "cloud_upload", 
+"#6366f1");
+assets\js\kord_core.js:2297:                showKordAlert("Pronto", "Figurinha enviada com sucesso!", "check_circle", 
+"#10b981");
+assets\js\kord_core.js:2300:                showKordAlert("Erro", "Falha ao salvar figurinha: " + dlErr.message, 
+"error", "#ef4444");
+assets\js\kord_core.js:2304:            showKordAlert("Erro no Upload", "Falha: " + uploadErr.message, "error", 
+"#ef4444");
+assets\js\kord_core.js:2308:        showKordAlert("Erro Fatal", "Algo deu errado: " + e.message, "error", "#ef4444");
+assets\js\kord_core.js:2332:        return showKordAlert("Erro", "Arquivo vazio não pode ser enviado.", "warning", 
+"#f59e0b");
+assets\js\kord_core.js:2335:    showKordModal({
+assets\js\kord_core.js:2350:            if (!kordWebTorrent) return showKordAlert("Erro", "Motor WebTorrent P2P falhou 
+ao iniciar no seu navegador.", "error", "#ef4444");
+assets\js\kord_core.js:2352:            showKordAlert("P2P Iniciado", `Semeando ${file.name} para a rede 
+descentralizada...`, "cloud_sync", "#a855f7");
+assets\js\kord_core.js:2372:                        showKordAlert("Link Expirado", `O tempo do arquivo 
+<b>${file.name}</b> acabou e o semeio foi interrompido.`, "timer_off", "#ef4444");
+assets\js\kord_core.js:2376:                showKordModal({
+assets\js\kord_core.js:2400:    if (!kordWebTorrent) return showKordAlert("Erro P2P", "Motor de Torrenting inativo no 
+navegador.", "error", "#ef4444");
+assets\js\kord_core.js:2402:    showKordAlert("Conectando P2P...", `Buscando o arquivo **${originalName}** direto do 
+outro computador via WebRTC...`, "settings_input_antenna", "#a855f7");
+assets\js\kord_core.js:2406:        return showKordAlert("Aviso", "Este arquivo já está sendo transferido neste 
+navegador.", "info", "#3b82f6");
+assets\js\kord_core.js:2410:        showKordAlert("P2P Conectado!", `Recebendo blocos de **${originalName}**...`, 
+"download", "#10b981");
+assets\js\kord_core.js:2422:            showKordAlert("P2P Concluído!", `O arquivo **${originalName}** foi montado com 
+sucesso e salvo no seu computador.`, "check_circle", "#10b981");
+assets\js\kord_core.js:2536:    showKordAlert("Imagem Selecionada", "Clique em 'Salvar Alterações' para aplicar em seu 
+perfil.", "check_circle", "#3b82f6");
+assets\js\kord_core.js:2625:    if (!currentUser) return showKordAlert("Erro", "Você precisa estar logado.", "error", 
+"#ef4444");
+assets\js\kord_core.js:2712:            showKordAlert("Upload", "Enviando nova foto...", "cloud_upload", "#6366f1");
+assets\js\kord_core.js:2757:            showKordAlert("Sucesso", "Identidade Kord atualizada com sucesso!", 
+"check_circle", "#10b981");
+assets\js\kord_core.js:2767:            showKordAlert("Aviso", "Preencha um Nome, anexe uma Foto ou Gere uma IA.", 
+"info", "#3b82f6");
+assets\js\kord_core.js:2771:        showKordAlert("Erro", err.message || "Falha ao salvar no banco de dados.", 
+"error", "#ef4444");
+assets\js\kord_core.js:2948:    showKordModal({
+assets\js\kord_core.js:2960:                return showKordAlert("Erro", "Você não pode adicionar a si mesmo!", 
+"warning", "#f59e0b");
+assets\js\kord_core.js:2989:                return showKordAlert("Não Encontrado", "Nenhum usuário encontrado com este 
+nickname ou email.", "error", "#ef4444");
+assets\js\kord_core.js:2993:                return showKordAlert("Erro", "Você não pode adicionar a si mesmo!", 
+"warning", "#f59e0b");
+assets\js\kord_core.js:2998:                return showKordAlert("Aviso", "Vocês já são amigos!", "info", "#6366f1");
+assets\js\kord_core.js:3003:                return showKordAlert("Aviso", "Pedido já foi enviado anteriormente!", 
+"info", "#6366f1");
+assets\js\kord_core.js:3012:                showKordAlert("Enviado!", "Pedido de amizade enviado com sucesso.", 
+"check_circle", "#10b981");
+assets\js\kord_core.js:3029:        showKordAlert("Sucesso", "Novo amigo adicionado!", "celebration", "#10b981");
+assets\js\kord_core.js:3038:        showKordAlert("Erro", "Falha de permissão ao aceitar.", "error", "#ef4444");
+assets\js\kord_core.js:3052:    showKordAlert("Recusado", "Pedido de amizade recusado.", "close", "#64748b");
+assets\js\kord_core.js:3069:    showKordModal({
+assets\js\kord_core.js:3097:                showKordAlert("Grupo Criado!", "Seu novo grupo foi criado. Agora adicione 
+amigos.", "check_circle", "#10b981");
+assets\js\kord_core.js:3100:                showKordAlert("Erro", "Falha ao criar grupo: " + e.message, "error", 
+"#ef4444");
+assets\js\kord_core.js:3163:    showKordModal({
+assets\js\kord_core.js:3199:                return showKordAlert("Não Encontrado", "Nenhum usuário encontrado.", 
+"error", "#ef4444");
+assets\js\kord_core.js:3205:                return showKordAlert("Aviso", "Usuário já está no grupo.", "info", 
+"#6366f1");
+assets\js\kord_core.js:3214:                showKordAlert("Sucesso", "Membro adicionado ao grupo.", "check_circle", 
+"#10b981");
+assets\js\kord_core.js:3226:                showKordAlert("Erro", "Falha ao adicionar: " + e.message, "error", 
+"#ef4444");
+assets\js\kord_core.js:3235:        showKordAlert("Convite Copiado!", `Código de Convite copiado:<br><br><b 
+style="color:#fff;">${inviteLink}</b><br><br>Seus amigos podem usar este código em Extras > Entrar no Servidor.`, 
+"content_copy", "#c084fc");
+assets\js\kord_core.js:3247:            return showKordAlert("Erro", "Apenas o dono pode apagar o grupo.", "error", 
+"#ef4444");
+assets\js\kord_core.js:3250:        showKordConfirm("Apagar Grupo", "Tem certeza que deseja apagar este grupo para 
+todos?", () => {
+assets\js\kord_core.js:3257:                showKordAlert("Apagado", "Grupo apagado com sucesso!", "delete", 
+"#10b981");
+assets\js\kord_core.js:3624:    if (!input) return showKordAlert("Vazio", "Digite um texto para traduzir.", "warning", 
+"#f59e0b");
+assets\js\kord_core.js:3625:    if (input.length > 2000) return showKordAlert("Limite", "Máximo de 2000 caracteres.", 
+"warning", "#f59e0b");
+assets\js\kord_core.js:3640:        return showKordAlert("Chave Ausente", "Configure sua Groq API Key nas 
+configurações do Kord AI primeiro.", "vpn_key", "#f59e0b");
+assets\js\kord_core.js:3686:        showKordAlert("Erro na Tradução", msg, "error", "#ef4444");
+assets\js\kord_core.js:3698:        showKordAlert("Copiado!", "Tradução copiada.", "content_copy", "#10b981");
+assets\js\kord_core.js:3733:    if (!currentUser) return showKordAlert("Erro", "Você precisa estar logado.", "error", 
+"#ef4444");
+assets\js\kord_core.js:3739:            return showKordAlert("Sem PayPal", `${targetName} não configurou um email 
+PayPal no perfil.`, "warning", "#f59e0b");
+assets\js\kord_core.js:3808:        return showKordAlert("Valor Inválido", "O valor deve ser entre R$1 e R$10.000.", 
+"warning", "#f59e0b");
+assets\js\kord_core.js:3814:        if (!paypalEmail) return showKordAlert("Erro", "Usuário não possui PayPal 
+configurado.", "error", "#ef4444");
+assets\js\kord_core.js:3839:        showKordAlert("Redirecionando", "Você será redirecionado para o PayPal...", 
+"open_in_new", "#3b82f6");
+assets\js\kord_webrtc.js:807:    if (!localStream || localStream.getAudioTracks().length === 0) return 
+showKordAlert("Erro", "Sem microfone detectado!", "mic_off", "#ef4444");
+assets\js\kord_webrtc.js:808:    if (isDeafened) return showKordAlert("Aviso", "Você não pode desmutar o microfone 
+enquanto seu fone estiver desativado.", "headset_off", "#f59e0b");
+assets\js\kord_webrtc.js:885:    if (!localStream || localStream.getVideoTracks().length === 0) return 
+showKordAlert("Erro", "Sem câmera detectada!", "videocam_off", "#ef4444");
+assets\js\kord_webrtc.js:962:        showKordAlert("Erro", "Compartilhamento de tela não iniciado.", "error", 
+"#ef4444");
+assets\js\kord_webrtc.js:986:            return showKordAlert("Chave Ausente", "Você precisa salvar sua Groq API Key 
+nas configurações primeiro para usar a IA Tradutora.", "vpn_key", "#f59e0b");
+assets\js\kord_webrtc.js:1078:        return showKordAlert("Erro", "Sem microfone para o tradutor IA.", "mic_off", 
+"#ef4444");
+assets\js\theme_engine.js:42:    if (!currentUser) return showKordAlert("Erro", "Logue para salvar seu tema!", 
+"error", "#ef4444");
+assets\js\theme_engine.js:45:        return showKordAlert("Erro", "Cor inválida.", "error", "#ef4444");
+assets\js\theme_engine.js:52:        showKordAlert("Design Atualizado!", "O novo tema foi aplicado em todo o 
+sistema.", "palette", hexColor.substring(0, 7));
+
+

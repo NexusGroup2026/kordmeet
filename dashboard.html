@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Curator | Dashboard</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script type="module">
+        import { checkAuth } from './assets/js/app.js';
+        checkAuth();
+    </script>
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                AI <span style="color:var(--primary-accent)">Curator</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-view="explore">
+                    <span class="material-icons-round">explore</span> Explorar
+                </a>
+                <a href="#" class="nav-item" data-view="favorites">
+                    <span class="material-icons-round">favorite</span> Favoritos
+                </a>
+                <a href="#" class="nav-item" data-view="rankings">
+                    <span class="material-icons-round">emoji_events</span> Top Rankings
+                </a>
+                <a href="#" class="nav-item" data-view="history">
+                    <span class="material-icons-round">history</span> Histórico
+                </a>
+            </nav>
+
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <span class="material-icons-round">person</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userEmailDisplay">Carregando...</div>
+                    <div class="user-status">Premium</div>
+                </div>
+                <button id="logoutBtn" style="background:none; border:none; color:#f66; cursor:pointer;">
+                    <span class="material-icons-round">bolt</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="date-display">
+                    <span class="material-icons-round">calendar_today</span>
+                    <span id="currentDate">Hoje</span>
+                </div>
+                <div class="search-bar">
+                    <span class="material-icons-round">search</span>
+                    <input type="text" id="searchInput" placeholder="Pesquisar ferramentas...">
+                </div>
+            </header>
+
+            <!-- Featured Card -->
+            <div id="featuredSection" class="featured-card glass">
+                <div class="featured-content">
+                    <div class="featured-badge">Destaque do Dia</div>
+                    <h2 id="featuredTitle">Carregando Destaque...</h2>
+                    <p id="featuredDesc">As melhores ferramentas de IA selecionadas para você.</p>
+                    <a id="featuredLink" href="#" target="_blank" class="btn-premium"
+                        style="display:inline-flex; align-items:center; gap:5px; text-decoration:none;">
+                        Testar Agora <span class="material-icons-round">launch</span>
+                    </a>
+                </div>
+                <div class="featured-visual">
+                    <span class="material-icons-round"
+                        style="font-size: 8rem; color: rgba(255,255,255,0.1);">rocket_launch</span>
+                </div>
+            </div>
+
+            <!-- Categories / Filters -->
+            <div class="categories-scroll">
+                <div class="filter-scroll">
+                    <button class="glass filter-chip active" data-filter="all">Tudo</button>
+                    <button class="glass filter-chip" data-filter="video">🎬 Vídeo</button>
+                    <button class="glass filter-chip" data-filter="image">🎨 Imagem</button>
+                    <button class="glass filter-chip" data-filter="audio">🎵 Áudio</button>
+                    <button class="glass filter-chip" data-filter="text">📝 Texto & LLMs</button>
+                    <button class="glass filter-chip" data-filter="productivity">⚡ Produtividade</button>
+                    <button class="glass filter-chip" data-filter="coding">💻 Coding</button>
+                    <button class="glass filter-chip" data-filter="medical">⚕️ Saúde</button>
+                    <button class="glass filter-chip" data-filter="legal">⚖️ Jurídico</button>
+                    <button class="glass filter-chip" data-filter="marketing">🚀 Marketing</button>
+                    <button class="glass filter-chip" data-filter="data">📊 Dados</button>
+                    <button class="glass filter-chip" data-filter="adult">🔞 (Hot)</button>
+                </div>
+            </div>
+
+            <!-- Grid -->
+            <div id="aiGrid" class="ai-grid">
+                <!-- Cards Injected Here by JS -->
+                <div class="loader"></div>
+            </div>
+
+        </main>
+    </div>
+
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+
+</html>
