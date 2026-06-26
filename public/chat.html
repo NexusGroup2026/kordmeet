@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <title>ZoomCord — Chat</title>
+</head>
+<body>
+  <div class="chat-container">
+    <header class="chat-header">
+      <h1><i class="fas fa-shield-halved"></i> ZoomCord</h1>
+      <a href="index.html" class="btn btn-secondary"><i class="fas fa-right-from-bracket"></i> Sair</a>
+    </header>
+
+    <div id="video-grid"></div>
+
+    <div class="video-controls" id="video-controls" style="display:none; padding:8px; background:var(--bg-tertiary); gap:8px; justify-content:center; border-bottom:1px solid var(--border);">
+      <button class="btn btn-secondary btn-sm" id="mute-btn" title="Mutar/Desmutar microfone">
+        <i class="fas fa-microphone"></i>
+      </button>
+      <button class="btn btn-secondary btn-sm" id="video-btn" title="Ligar/Desligar câmera">
+        <i class="fas fa-video"></i>
+      </button>
+      <button class="btn btn-secondary btn-sm" id="screenshare-btn" title="Compartilhar tela">
+        <i class="fas fa-desktop"></i>
+      </button>
+    </div>
+
+    <main class="chat-main">
+      <div class="chat-sidebar">
+        <h3><i class="fas fa-door-open"></i> Sala</h3>
+        <h2 id="room-name"></h2>
+        <h3><i class="fas fa-users"></i> Participantes</h3>
+        <ul id="users"></ul>
+      </div>
+      <div class="chat-messages">
+        <div class="is-typing" id="is-typing"></div>
+      </div>
+    </main>
+
+    <div class="chat-form-container">
+      <form id="chat-form">
+        <input id="msg" type="text" placeholder="Digite sua mensagem..." required autocomplete="off" maxlength="500">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane"></i> Enviar</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.12.1/qs.min.js"></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="https://unpkg.com/tweetnacl@1.0.3/nacl-fast.min.js"></script>
+  <script src="https://unpkg.com/tweetnacl-util@0.15.1/nacl-util.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/crypto-client.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
