@@ -1,34 +1,24 @@
-# Kord Meet - Premium Chat and Video
+# ZoomCord
+Google Meet / Zoom / Discord clone
 
-Plataforma de comunicacao em tempo real: chat, chamadas P2P, compartilhamento de tela, tradutor IA, e comunidades.
+A web application for video meeting + realtime text chat.
+Developed with Node.js, Express, Peer.js and Socket.io.
 
-## Funcionalidades
+## Features
+- [x] Join and leave room
+- [x] Group video meeting
+- [x] Group text chat
+- [x] Unique username checking
+- [x] 'User is typing...'
+- [ ] Limit number of users per room
 
-- Chat em tempo real com Firebase
-- Chamadas de voz/video P2P
-- Compartilhamento de tela
-- Tradutor IA simultaneo
-- Comunidades (servidores)
-- Sistema de amizade
-- Upload de arquivos P2P
-- Temas customizaveis
-- Seguranca multi-camada
+## Usage
+```
+npm install
+npm run dev
 
-## Como rodar
+npm i -g peer
+peerjs --port 3001
 
-1. Clone: git clone https://github.com/NexusGroup2026/kordmeet.git
-2. Copie para htdocs do XAMPP
-3. Inicie Apache
-4. Acesse http://localhost
-
-## Stack
-
-Frontend: Vanilla JS, CSS3, HTML5
-Realtime: Firebase Realtime Database
-Auth: Firebase Authentication
-Backend: PHP 8 + Apache
-P2P: WebTorrent
-
-## GitHub Pages
-
-https://nexusgroup2026.github.io/kordmeet/
+Go to localhost:3000
+```
