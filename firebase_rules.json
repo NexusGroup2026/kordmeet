@@ -2,193 +2,340 @@
   "rules": {
     ".read": false,
     ".write": false,
-
     "users": {
       "$uid": {
         ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.hasChildren(['email'])",
-
-        "email": { ".validate": "newData.isString() && newData.val().matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$')" },
-        "displayName": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60 && !newData.val().matches('[<>\"\\\\]')" },
-        "nickname": { ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 30 && newData.val().matches('^[a-zA-Z0-9_]+$')" },
-        "themeColor": { ".validate": "newData.isString() && newData.val().matches('^#[0-9a-fA-F]{6}$')" },
-        "photoURL": { ".validate": "newData.isString() && newData.val().length < 200000" },
-        "bio": { ".validate": "newData.isString() && newData.val().length <= 500" },
-        "status": { ".validate": "newData.isString()" },
-        "presence": { ".validate": "newData.isNumber()" },
-        "customCSS": { ".validate": "newData.isString() && newData.val().length < 5000 && !newData.val().matches('expression\\\\(|javascript:|url\\\\(|@import')" },
+        "email": {
+          ".validate": "newData.isString() && newData.val().matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$')"
+        },
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60 && !newData.val().matches('[<>\"\\\\]')"
+        },
+        "nickname": {
+          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 30 && newData.val().matches('^[a-zA-Z0-9_]+$')"
+        },
+        "themeColor": {
+          ".validate": "newData.isString() && newData.val().matches('^#[0-9a-fA-F]{6}$')"
+        },
+        "photoURL": {
+          ".validate": "newData.isString() && newData.val().length < 200000"
+        },
+        "bio": {
+          ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "status": {
+          ".validate": "newData.isString()"
+        },
+        "presence": {
+          ".validate": "newData.isNumber()"
+        },
+        "customCSS": {
+          ".validate": "newData.isString() && newData.val().length < 5000 && !newData.val().matches('expression\\\\(|javascript:|url\\\\(|@import')"
+        },
         "servers": {
           "$serverId": {
             ".write": "auth != null && auth.uid === $uid",
             ".validate": "newData.isBoolean()"
+          },
+          "$other": {
+            ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
           }
         },
         "groups": {
           "$groupId": {
             ".write": "auth != null && (auth.uid === $uid || root.child('direct_messages').child($groupId).child('info').child('owner').val() === auth.uid)",
             ".validate": "newData.isBoolean()"
+          },
+          "$other": {
+            ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
           }
         },
         "friend_requests": {
           "$fromUid": {
             ".write": "auth != null && auth.uid === $uid",
             ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
           }
         },
         "blocked": {
           "$blockedUid": {
             ".write": "auth != null && auth.uid === $uid",
             ".validate": "newData.isBoolean()"
+          },
+          "$other": {
+            ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
           }
         },
         "profile": {
           ".write": "auth != null && auth.uid === $uid",
-          "displayName": { ".validate": "newData.isString() && newData.val().length <= 60" },
-          "bio": { ".validate": "newData.isString() && newData.val().length <= 500" },
-          "themeColor": { ".validate": "newData.isString()" },
-          "avatarDecoration": { ".validate": "newData.isString()" },
-          "customCSS": { ".validate": "newData.isString() && newData.val().length < 5000" }
+          "displayName": {
+            ".validate": "newData.isString() && newData.val().length <= 60"
+          },
+          "bio": {
+            ".validate": "newData.isString() && newData.val().length <= 500"
+          },
+          "themeColor": {
+            ".validate": "newData.isString()"
+          },
+          "avatarDecoration": {
+            ".validate": "newData.isString()"
+          },
+          "customCSS": {
+            ".validate": "newData.isString() && newData.val().length < 5000"
+          }
         },
-        "$other": { ".validate": "newData.isString() && newData.val().length < 100000" }
+        "$other": {
+          ".validate": "newData.isString() && newData.val().length < 100000"
+        }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "nicknames": {
       "$nick": {
         ".read": "auth != null",
         ".write": "auth != null",
         ".validate": "newData.isString() && newData.val().length > 0"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "servers": {
       "$serverId": {
         ".read": "auth != null",
         ".write": "auth != null",
         ".validate": "newData.hasChildren(['name', 'owner']) && newData.child('name').isString() && newData.child('name').val().length < 150",
-
-        "name": { ".validate": "newData.isString() && !newData.val().matches('(<script|javascript:|on\\\\w+=|<iframe)')" },
-        "owner": { ".validate": "newData.isString()" },
-        "photoURL": { ".validate": "newData.isString()" },
+        "name": {
+          ".validate": "newData.isString() && !newData.val().matches('(<script|javascript:|on\\\\w+=|<iframe)')"
+        },
+        "owner": {
+          ".validate": "newData.isString()"
+        },
+        "photoURL": {
+          ".validate": "newData.isString()"
+        },
         "channels": {
           "$channelId": {
             ".write": "auth != null",
             ".validate": "newData.hasChildren(['name', 'type'])",
-            "name": { ".validate": "newData.isString() && newData.val().length < 50" },
-            "type": { ".validate": "newData.isString() && newData.val().matches('^(text|voice)$')" },
+            "name": {
+              ".validate": "newData.isString() && newData.val().length < 50"
+            },
+            "type": {
+              ".validate": "newData.isString() && newData.val().matches('^(text|voice)$')"
+            },
             "messages": {
               "$msgId": {
                 ".write": "auth != null",
                 ".validate": "newData.hasChildren(['author', 'text', 'time']) && newData.child('text').isString() && newData.child('text').val().length < 4000 && !newData.child('text').val().matches('(<script|javascript:|on\\\\w+=|<iframe)') && newData.child('time').isNumber()",
-                "uid": { ".validate": "newData.isString()" },
-                "author": { ".validate": "newData.isString() && newData.val().length < 60" },
-                "color": { ".validate": "newData.isString()" },
-                "photoURL": { ".validate": "newData.isString()" },
-                "mediaType": { ".validate": "newData.isString()" },
-                "mediaUrl": { ".validate": "newData.isString() && newData.val().length < 5000" },
-                "edited": { ".validate": "newData.isBoolean()" },
+                "uid": {
+                  ".validate": "newData.isString()"
+                },
+                "author": {
+                  ".validate": "newData.isString() && newData.val().length < 60"
+                },
+                "color": {
+                  ".validate": "newData.isString()"
+                },
+                "photoURL": {
+                  ".validate": "newData.isString()"
+                },
+                "mediaType": {
+                  ".validate": "newData.isString()"
+                },
+                "mediaUrl": {
+                  ".validate": "newData.isString() && newData.val().length < 5000"
+                },
+                "edited": {
+                  ".validate": "newData.isBoolean()"
+                },
                 "replyTo": {
-                  "msgId": { ".validate": "newData.isString()" },
-                  "authorName": { ".validate": "newData.isString()" },
-                  "authorColor": { ".validate": "newData.isString()" },
-                  "text": { ".validate": "newData.isString()" }
+                  "msgId": {
+                    ".validate": "newData.isString()"
+                  },
+                  "authorName": {
+                    ".validate": "newData.isString()"
+                  },
+                  "authorColor": {
+                    ".validate": "newData.isString()"
+                  },
+                  "text": {
+                    ".validate": "newData.isString()"
+                  }
                 },
                 "reactions": {
                   "$reactionId": {
                     ".write": "auth != null",
                     ".validate": "newData.hasChildren(['uid', 'emoji']) && newData.child('uid').isString() && newData.child('emoji').isString()"
+                  },
+                  "$other": {
+                    ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
                   }
                 },
-                "$other": { ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()" }
+                "$other": {
+                  ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
+                }
+              },
+              "$other": {
+                ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
               }
             },
-            "$other": { ".validate": "true" }
+            "$other": {
+              ".validate": "true"
+            }
+          },
+          "$other": {
+            ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
           }
         },
-        "$other": { ".validate": "newData.isString() || newData.isBoolean()" }
+        "$other": {
+          ".validate": "newData.isString() || newData.isBoolean()"
+        }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "forums": {
       "$forumId": {
         ".read": "auth != null",
         ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
         ".validate": "newData.hasChildren(['author', 'text', 'time']) && newData.child('text').isString() && newData.child('text').val().length < 10000 && !newData.child('text').val().matches('(<script|javascript:|onerror=)')"
+      },
+      ".read": "auth != null",
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "friendships": {
       "$uid": {
         "$friendUid": {
           ".read": "auth != null && (auth.uid === $uid || auth.uid === $friendUid)",
           ".write": "auth != null && (auth.uid === $uid || auth.uid === $friendUid)",
           ".validate": "newData.isBoolean() && newData.val() === true"
+        },
+        "$other": {
+          ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
         }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "friend_requests": {
       "$toUid": {
         "$fromUid": {
           ".read": "auth != null && (auth.uid === $toUid || auth.uid === $fromUid)",
           ".write": "auth != null && auth.uid === $fromUid",
           ".validate": "newData.isBoolean() && newData.val() === true"
+        },
+        "$other": {
+          ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
         }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "blocked_users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid",
         "$blockedUid": {
           ".validate": "newData.isBoolean()"
+        },
+        "$other": {
+          ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
         }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "direct_messages": {
       "$chatId": {
         ".read": "auth != null && (root.child('direct_messages').child($chatId).child('info').child('members').child(auth.uid).exists() || root.child('direct_messages').child($chatId).child('info').child('owner').val() === auth.uid)",
         ".write": "auth != null && (root.child('direct_messages').child($chatId).child('info').child('members').child(auth.uid).exists() || root.child('direct_messages').child($chatId).child('info').child('owner').val() === auth.uid)",
         "info": {
           ".validate": "newData.hasChildren(['name', 'owner', 'members']) && newData.child('name').isString() && newData.child('name').val().length < 100",
-          "name": { ".validate": "newData.isString() && !newData.val().matches('[<>\"\\\\]')" },
-          "owner": { ".validate": "newData.isString()" },
-          "isGroup": { ".validate": "newData.isBoolean()" },
-          "channelType": { ".validate": "newData.isString() && newData.val().matches('^(text|voice)$')" },
+          "name": {
+            ".validate": "newData.isString() && !newData.val().matches('[<>\"\\\\]')"
+          },
+          "owner": {
+            ".validate": "newData.isString()"
+          },
+          "isGroup": {
+            ".validate": "newData.isBoolean()"
+          },
+          "channelType": {
+            ".validate": "newData.isString() && newData.val().matches('^(text|voice)$')"
+          },
           "members": {
             "$uid": {
               ".write": "auth != null && (data.parent().child('owner').val() === auth.uid || auth.uid === $uid)",
               ".validate": "newData.isBoolean()"
+            },
+            "$other": {
+              ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
             }
           },
-          "$other": { ".validate": "newData.isString() || newData.isNumber()" }
+          "$other": {
+            ".validate": "newData.isString() || newData.isNumber()"
+          }
         },
         "messages": {
           "$msgId": {
             ".write": "auth != null && (root.child('direct_messages').child($chatId).child('info').child('members').child(auth.uid).exists() || root.child('direct_messages').child($chatId).child('info').child('owner').val() === auth.uid)",
             ".validate": "newData.hasChildren(['text', 'time', 'author']) && newData.child('text').isString() && newData.child('text').val().length < 4000 && !newData.child('text').val().matches('(<script|javascript:|onerror=|onload=)') && newData.child('time').isNumber()",
-            "uid": { ".validate": "newData.isString()" },
-            "author": { ".validate": "newData.isString() && newData.val().length < 60" },
-            "color": { ".validate": "newData.isString()" },
-            "photoURL": { ".validate": "newData.isString()" },
-            "mediaType": { ".validate": "newData.isString()" },
-            "mediaUrl": { ".validate": "newData.isString()" },
-            "edited": { ".validate": "newData.isBoolean()" },
+            "uid": {
+              ".validate": "newData.isString()"
+            },
+            "author": {
+              ".validate": "newData.isString() && newData.val().length < 60"
+            },
+            "color": {
+              ".validate": "newData.isString()"
+            },
+            "photoURL": {
+              ".validate": "newData.isString()"
+            },
+            "mediaType": {
+              ".validate": "newData.isString()"
+            },
+            "mediaUrl": {
+              ".validate": "newData.isString()"
+            },
+            "edited": {
+              ".validate": "newData.isBoolean()"
+            },
             "reactions": {
               "$reactionId": {
                 ".write": "auth != null",
                 ".validate": "newData.hasChildren(['uid', 'emoji'])"
+              },
+              "$other": {
+                ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
               }
             },
-            "$other": { ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()" }
+            "$other": {
+              ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
+            }
+          },
+          "$other": {
+            ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
           }
         }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "webrtc_rooms": {
       "$roomId": {
         ".read": "auth != null",
@@ -198,205 +345,290 @@
           "$uid": {
             ".write": "auth != null && auth.uid === $uid",
             ".validate": "newData.hasChildren(['active', 'displayName'])",
-            "active": { ".validate": "newData.isBoolean()" },
-            "muted": { ".validate": "newData.isBoolean()" },
-            "deafened": { ".validate": "newData.isBoolean()" },
-            "displayName": { ".validate": "newData.isString() && newData.val().length < 60" },
-            "photoURL": { ".validate": "newData.isString()" },
-            "themeColor": { ".validate": "newData.isString()" },
-            "lastSeen": { ".validate": "newData.isNumber()" },
-            "lastTranscript": { ".validate": "newData.isString()" },
-            "transcriptTime": { ".validate": "newData.isNumber()" },
-            "screenShare": { ".validate": "newData.isBoolean()" },
-            "screenFrame": { ".validate": "newData.isString() && newData.val().length < 100000" },
-            "screenFrameTime": { ".validate": "newData.isNumber()" },
-            "$other": { ".validate": "true" }
+            "active": {
+              ".validate": "newData.isBoolean()"
+            },
+            "muted": {
+              ".validate": "newData.isBoolean()"
+            },
+            "deafened": {
+              ".validate": "newData.isBoolean()"
+            },
+            "displayName": {
+              ".validate": "newData.isString() && newData.val().length < 60"
+            },
+            "photoURL": {
+              ".validate": "newData.isString()"
+            },
+            "themeColor": {
+              ".validate": "newData.isString()"
+            },
+            "lastSeen": {
+              ".validate": "newData.isNumber()"
+            },
+            "lastTranscript": {
+              ".validate": "newData.isString()"
+            },
+            "transcriptTime": {
+              ".validate": "newData.isNumber()"
+            },
+            "screenShare": {
+              ".validate": "newData.isBoolean()"
+            },
+            "screenFrame": {
+              ".validate": "newData.isString() && newData.val().length < 100000"
+            },
+            "screenFrameTime": {
+              ".validate": "newData.isNumber()"
+            },
+            "$other": {
+              ".validate": "true"
+            }
+          },
+          "$other": {
+            ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
           }
         },
         "audio_chunks": {
           "$uid": {
             ".write": "auth != null && auth.uid === $uid",
             ".validate": "newData.hasChildren(['data', 'mime', 'timestamp']) && newData.child('data').isString() && newData.child('data').val().length < 200000 && newData.child('mime').isString() && newData.child('timestamp').isNumber()"
+          },
+          "$other": {
+            ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
           }
         },
-        "$other": { ".validate": "newData.isString() || newData.isNumber()" }
+        "$other": {
+          ".validate": "newData.isString() || newData.isNumber()"
+        }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "global_notifications": {
       ".read": "auth != null",
       ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       "$notifId": {
         ".validate": "newData.hasChildren(['message', 'timestamp']) && newData.child('message').isString() && newData.child('message').val().length < 500"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "changelog": {
       ".read": true,
       ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       "$entryId": {
         ".validate": "newData.hasChildren(['title', 'description', 'timestamp']) && newData.child('title').val().length < 200 && newData.child('description').val().length < 5000"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "tools": {
       ".read": true,
       ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       "$toolId": {
         ".validate": "newData.hasChildren(['name', 'url', 'category']) && newData.child('name').val().length < 200 && newData.child('url').val().matches('^https?://')",
-        "name": { ".validate": "newData.isString() && !newData.val().matches('[<>\"\\\\]')" }
+        "name": {
+          ".validate": "newData.isString() && !newData.val().matches('[<>\"\\\\]')"
+        }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "popular_stats": {
       ".read": true,
       "$week_id": {
         "$tool_id": {
           ".write": "(!data.exists() && newData.isNumber() && newData.val() >= 0 && newData.val() <= 999999) || (auth != null && newData.isNumber())"
+        },
+        "$other": {
+          ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
         }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "search_activity": {
       ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       ".write": "auth != null",
       "$entry_id": {
         ".validate": "newData.hasChildren(['query', 'timestamp', 'userId']) && newData.child('query').isString() && newData.child('query').val().length < 100 && newData.child('userId').isString() && newData.child('userId') === auth.uid"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "access_logs": {
       ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       ".write": "auth != null",
       "$entry_id": {
         ".validate": "newData.hasChildren(['timestamp', 'userAgent', 'userId']) && newData.child('userAgent').isString() && newData.child('userId').isString() && newData.child('userId') === auth.uid"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "bug_reports": {
       "$report_id": {
         ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
         ".write": "auth != null",
         ".validate": "newData.hasChildren(['type', 'description', 'timestamp', 'userId']) && newData.child('description').isString() && newData.child('description').val().length < 2000 && newData.child('userId').isString() && newData.child('userId') === auth.uid"
+      },
+      ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
+      ".write": "auth != null",
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "message_reports": {
       "$report_id": {
         ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
         ".write": "auth != null",
         ".validate": "newData.hasChildren(['reporterId', 'timestamp', 'messageId', 'reason']) && newData.child('reporterId').isString() && newData.child('reporterId') === auth.uid"
+      },
+      ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
+      ".write": "auth != null",
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "supporters": {
       ".read": true,
       "$key": {
         ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com') || auth.uid === $key)",
-        "email": { ".validate": "newData.isString()" },
-        "total_amount": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000" }
+        "email": {
+          ".validate": "newData.isString()"
+        },
+        "total_amount": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000"
+        }
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "error_reports": {
       "$reportId": {
         ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
         ".write": "auth != null",
         ".validate": "newData.hasChildren(['message', 'stack', 'timestamp', 'userId', 'userAgent']) && newData.child('userId').isString() && newData.child('userId') === auth.uid"
+      },
+      ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
+      ".write": "auth != null",
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "admin_actions": {
       ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))"
     },
-
     "verified_donations": {
       ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       "$txnId": {
         ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "transactions": {
       ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       "$txId": {
         ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "system_config": {
       ".read": true,
       ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))"
     },
-
     "file_shares": {
       "$shareId": {
         ".read": "auth != null",
         ".write": "auth != null && auth.uid === $shareId.split('_')[0]",
         ".validate": "newData.hasChildren(['uploaderId', 'filename', 'url', 'timestamp']) && newData.child('uploaderId').isString() && newData.child('filename').isString() && newData.child('url').isString()"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "presence": {
       "$uid": {
         ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.hasChildren(['status', 'lastSeen']) && newData.child('status').isString() && newData.child('lastSeen').isNumber()"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "typing_indicators": {
       "$uid": {
         ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "discovery_queue": {
       ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       "$entry_id": {
         ".validate": "newData.isString() && newData.val().length > 2 && newData.val().length < 100 && !newData.val().matches('[<>\"\\\\]')"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "discovery_history": {
       ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))",
       ".write": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))"
     },
-
     "_honeypot_logs": {
       ".write": true,
       ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))"
     },
-
     "_rate_limits": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.hasChildren(['count', 'windowStart']) && newData.child('count').isNumber() && newData.child('windowStart').isNumber()"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "_security_events": {
       ".write": true,
       ".read": "auth != null && (auth.token.email.matches('moisesvvanti@gmail.com') || auth.token.email.matches('vitortrader2017@gmail.com'))"
     },
-
     "kord_stickers": {
       ".read": "auth != null",
       ".write": "auth != null",
       "$file": {
         ".validate": "newData.isString()"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     },
-
     "kord_files": {
       ".read": "auth != null",
       ".write": "auth != null",
       "$file": {
         ".validate": "newData.isString()"
+      },
+      "$other": {
+        ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()"
       }
     }
   }
