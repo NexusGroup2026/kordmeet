@@ -1,4 +1,4 @@
-﻿/* =========================================
+/* =========================================
    PROJECT KORD
    Theme: Ethereal Dark (Clean & Modern)
    Performance: Native-like 60FPS
@@ -2659,3 +2659,243 @@ button {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+/* ==========================================
+   MODERN GIF/EMOJI/STICKER PICKER SYSTEM
+   ========================================== */
+.kord-picker-container {
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
+    background: rgba(30, 31, 34, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    width: 420px;
+    max-width: calc(100vw - 40px);
+    height: 520px;
+    max-height: 520px;
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    animation: kordFadeUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.kord-picker-header {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.kord-picker-tab {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #94a3b8;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.kord-picker-tab:hover {
+    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.kord-picker-tab.active {
+    color: #fff;
+    font-weight: 600;
+    border-bottom-color: var(--primary-color, #5865f2);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.kord-picker-search-wrap {
+    padding: 12px;
+    flex-shrink: 0;
+}
+
+.kord-picker-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #64748b;
+    pointer-events: none;
+}
+
+.kord-picker-search-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 12px 10px 40px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.kord-picker-search-input:focus {
+    border-color: rgba(99, 102, 241, 0.6);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.kord-picker-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 12px 12px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    align-items: start;
+}
+
+.kord-picker-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.kord-picker-results::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+/* ==========================================
+   MODERN FORM DESIGN SYSTEM
+   ========================================== */
+.kord-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.kord-form-label {
+    display: block;
+    color: #e2e8f0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+}
+
+.kord-form-desc {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.kord-form-control {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+select.kord-form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.kord-form-control:focus {
+    border-color: rgba(99, 102, 241, 0.6);
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.kord-form-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.kord-form-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #cbd5e1;
+    font-weight: 500;
+    font-size: 0.85rem;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s ease;
+}
+
+.kord-form-checkbox-label:hover {
+    color: #fff;
+}
+
+.kord-form-checkbox-label input[type="checkbox"] {
+    accent-color: var(--primary-color, #6366f1);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* Translator Modal Style Overrides */
+.kord-translator-box {
+    background: linear-gradient(165deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+    border-radius: 20px;
+    width: 550px;
+    max-width: 95%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 60px -12px rgba(0,0,0,0.8);
+    overflow: hidden;
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kord-translator-header {
+    padding: 20px 24px 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kord-translator-body {
+    padding: 20px 24px 24px 24px;
+}
+
+.kord-translator-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 14px;
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.kord-translator-textarea:focus {
+    border-color: rgba(245, 158, 11, 0.5);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    background: rgba(0, 0, 0, 0.45);
+}
+
+

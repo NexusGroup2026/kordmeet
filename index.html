@@ -782,9 +782,6 @@
                                     <button onclick="startKordVoiceCall()" class="kord-join-call-btn">
                                         <span class="material-icons-round">call</span> Entrar na Call
                                     </button>
-                                    <button onclick="copyCallInviteLink()" class="kord-join-call-btn" style="background:rgba(99,102,241,0.1); color:#818cf8; border-color:rgba(99,102,241,0.3); margin-left:8px;" title="Copiar link da call">
-                                        <span class="material-icons-round">link</span> Convidar
-                                    </button>
                                 </div>
                             </div>
 
@@ -891,6 +888,16 @@
                                     <p class="setting-desc">Limpar histórico de cliques (Popular)</p>
                                 </div>
                                 <button onclick="clearTracking()" class="action-btn">LIMPAR</button>
+                            </div>
+
+                            <div class="setting-item" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 20px;">
+                                <div>
+                                    <h4 class="setting-title" style="color: #ef4444;">Encerrar Sessão</h4>
+                                    <p class="setting-desc">Sair da sua conta atual</p>
+                                </div>
+                                <button onclick="kordLogout()" class="action-btn" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">
+                                    DESCONECTAR
+                                </button>
                             </div>
 
                             <div class="setting-item">
@@ -1060,6 +1067,9 @@ let _errorShown = false;
                                     }
                                 })();
                             </script>
+
+        <!-- jQuery CDN -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
         <!-- PayPal JS SDK (Sandbox for testing, switch client-id for live) -->
         <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=BRL&disable-funding=credit,card"></script>
@@ -1391,74 +1401,68 @@ let _errorShown = false;
         </div>
 
         <!-- KORD AI CONFIGURATION MODAL -->
-        <div id="kordAIConfigModal"
-            style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.85); z-index:999998; justify-content:center; align-items:center; backdrop-filter:blur(8px); opacity:0; transition: opacity 0.3s ease;">
-            <div id="kordAIConfigModalBox"
-                style="background:linear-gradient(145deg, #1e293b, #0f172a); border-radius:20px; width:500px; max-width:90%; border:1px solid rgba(255,255,255,0.1); box-shadow:0 25px 60px -12px rgba(0,0,0,0.8); transform:scale(0.95); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow:hidden;">
-
-                <div style="padding: 40px 30px 30px 30px;">
-                    <h2
-                        style="margin:0 0 5px 0; color:#f8fafc; font-size:1.5rem; display:flex; align-items:center; gap:10px;">
-                        <span class="material-icons-round" style="color:#a78bfa;">auto_awesome</span> Kord AI Engine
-                    </h2>
-                    <p style="margin:0 0 25px 0; color:#94a3b8; font-size:0.95rem;">Configure sua inteligência
-                        artificial (Llama3) e os recursos avançados.</p>
-
-                    <div style="display:flex; flex-direction:column; gap:20px;">
-
-                        <!-- Traductor Audio System -->
-                        <div>
-                            <label
-                                style="display:block; color:#cbd5e1; font-weight:600; margin-bottom:8px; font-size:0.9rem;">
-                                Meu Idioma Alvo (Tradução IA)
-                            </label>
-                            <div style="display:flex; gap:8px; flex-wrap: wrap;">
-                                <select id="kordTranslateTarget"
-                                    style="flex: 1; min-width: 150px; height:40px; padding:0 12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:white; border-radius:8px; outline:none;">
-                                    <option value="pt-BR">Português (Brasil)</option>
-                                    <option value="en">English (US/UK)</option>
-                                    <option value="es">Español (América/España)</option>
-                                    <option value="ja">Japanese (日本語)</option>
-                                    <option value="ko">Korean (한국어)</option>
-                                    <option value="zh">Chinese (中文)</option>
-                                    <option value="fr">Français</option>
-                                    <option value="de">Deutsch (German)</option>
-                                    <option value="it">Italiano</option>
-                                    <option value="ru">Russian (Русский)</option>
-                                    <option value="ar">Arabic (العربية)</option>
-                                    <option value="hi">Hindi (हिन्दी)</option>
-                                </select>
-                            </div>
-                            <label
-                                style="display:flex; align-items:center; gap:10px; color:#cbd5e1; font-weight:400; margin-top:10px; font-size:0.85rem; cursor:pointer;">
-                                <input type="checkbox" id="kordTranslateTTS" checked
-                                    style="accent-color:var(--primary-color); width:16px; height:16px;">
-                                Ligar Síntese de Voz (Ouvir tradução automaticamente)
-                            </label>
-                        </div>
-
-                        <!-- Groq API Key -->
-                        <div>
-                            <label
-                                style="display:block; color:#cbd5e1; font-weight:600; margin-bottom:8px; font-size:0.9rem;">
-                                Groq API Key
-                            </label>
-                            <p style="margin:0 0 5px 0; color:#94a3b8; font-size:0.8rem;">A chave necessária para
-                                alimentar o motor do Tradutor Universal e Designer.</p>
-                            <div style="display:flex; gap:10px;">
-                                <input type="password" id="groqApiKey" placeholder="gsk_..."
-                                    style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 12px; border-radius: 8px; font-size:0.85rem; outline:none;">
-                                <button onclick="saveGroqKeyDirectly(true)" class="action-btn"
-                                    style="padding:10px 15px; border-radius:8px; color:white; background:var(--primary-color); border:none; font-weight:600;">Salvar</button>
-                            </div>
-                        </div>
-
+        <div id="kordAIConfigModal" class="kord-modal-overlay">
+            <div id="kordAIConfigModalBox" class="kord-modal-box" style="width: 500px;">
+                <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+                    <div class="kord-modal-icon-container" style="background:rgba(167, 139, 250, 0.1); color:#a78bfa;">
+                        <span class="material-icons-round">auto_awesome</span>
                     </div>
-                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-                        <button onclick="closeKordAIConfigModal()" class="action-btn"
-                            style="background:transparent; color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:10px 20px; border-radius:8px;">Fechar
-                            Painel</button>
+                    <div>
+                        <h2 class="kord-modal-title">Kord AI Engine</h2>
+                        <p class="kord-modal-desc" style="margin: 2px 0 0 0;">Configure seu motor de Inteligência Artificial e Tradução.</p>
                     </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:20px;">
+                    <!-- Translator Target Language -->
+                    <div class="kord-form-group">
+                        <label class="kord-form-label" for="kordTranslateTarget">Meu Idioma Alvo (Tradução IA)</label>
+                        <p class="kord-form-desc">Defina o idioma principal no qual as falas da call serão traduzidas.</p>
+                        <select id="kordTranslateTarget" class="kord-form-control" onchange="localStorage.setItem('kord_translate_target', this.value)">
+                            <option value="pt-BR">Português (Brasil)</option>
+                            <option value="en">English (US/UK)</option>
+                            <option value="es">Español (América/España)</option>
+                            <option value="ja">Japanese (日本語)</option>
+                            <option value="ko">Korean (한국어)</option>
+                            <option value="zh">Chinese (中文)</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch (German)</option>
+                            <option value="it">Italiano</option>
+                            <option value="ru">Russian (Русский)</option>
+                            <option value="ar">Arabic (العربية)</option>
+                            <option value="hi">Hindi (हिन्दी)</option>
+                        </select>
+                        
+                        <label class="kord-form-checkbox-label" style="margin-top:10px;">
+                            <input type="checkbox" id="kordTranslateTTS" onchange="localStorage.setItem('kord_translate_tts', this.checked)">
+                            Ligar Síntese de Voz (Ouvir tradução automaticamente)
+                        </label>
+                    </div>
+
+                    <!-- AI Provider Select -->
+                    <div class="kord-form-group">
+                        <label class="kord-form-label" for="kordAIProvider">Provedor de Inteligência Artificial</label>
+                        <p class="kord-form-desc">Selecione qual inteligência alimentará os recursos (Tradução, Designer, etc.).</p>
+                        <select id="kordAIProvider" class="kord-form-control" onchange="switchKordAIProvider()">
+                            <option value="groq">Groq (Llama 3)</option>
+                            <option value="openai">OpenAI (ChatGPT)</option>
+                            <option value="gemini">Google Gemini</option>
+                        </select>
+                    </div>
+
+                    <!-- API Key Input -->
+                    <div class="kord-form-group" style="margin-bottom: 10px;">
+                        <label class="kord-form-label" for="kordAIApiKey">Chave de API (API Key)</label>
+                        <p id="kordAIPasswordDesc" class="kord-form-desc">Chave necessária para alimentar o motor do provedor selecionado.</p>
+                        <div class="kord-form-row" style="margin-top: 8px;">
+                            <input type="password" id="kordAIApiKey" placeholder="Chave de API..." class="kord-form-control" style="flex:1;">
+                            <button onclick="saveKordAISettings()" class="btn-primary-clean" style="height:42px; padding:0 20px; border-radius:10px;">Salvar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kord-modal-footer" style="margin-top:24px;">
+                    <button onclick="closeKordAIConfigModal()" class="action-btn secondary" style="padding:10px 20px; border-radius:10px;">Fechar</button>
                 </div>
             </div>
         </div>

@@ -5,8 +5,8 @@
 
         "users": {
             "$uid": {
-                ".read": "auth != null && auth.uid === $uid",
-                ".write": "auth != null && auth.uid === $uid",
+                ".read": "auth != null",
+                ".write": "auth != null && (auth.uid === $uid || newData.child('friend_requests').child(auth.uid).exists() || newData.child('groups').child(auth.uid).exists())",
                 ".validate": "newData.hasChildren(['email']) && newData.email.isString()",
 
                 "email": {
@@ -30,8 +30,14 @@
                     ".validate": "newData.isNumber() && newData.val() > 0"
                 },
 
+                "friend_requests": {
+                    ".validate": "true"
+                },
+                "groups": {
+                    ".validate": "true"
+                },
                 "$other": {
-                    ".validate": "false"
+                    ".validate": "true"
                 }
             }
         },
@@ -39,8 +45,8 @@
         "nicknames": {
             "$nick": {
                 ".read": "auth != null",
-                ".write": "auth != null && auth.uid === root.child('users').child(auth.uid).child('nickname').val()",
-                ".validate": "$nick.isString() && $nick.length >= 3 && $nick.length <= 30 && !$nick.matches('[.#$\\\\[\\\\]\\\\/])'"
+                ".write": "auth != null && (newData.val() === auth.uid || data.val() === auth.uid)",
+                ".validate": "$nick.isString() && $nick.length >= 3 && $nick.length <= 30 && !$nick.matches('[.#$\\\\[\\\\]\\\\/])')"
             }
         },
 
@@ -65,13 +71,13 @@
 
                         "messages": {
                             "$msgId": {
-                                ".write": "auth != null && auth.uid === root.child('users').child(auth.uid).val()",
-                                ".validate": "newData.hasChildren(['authorId', 'text', 'time']) && newData.text.isString() && newData.text.val().length < 4000 && !newData.text.val().matches('(<script|javascript:|on\\\\w+=|<iframe)') && newData.authorId.isString() && newData.time.isNumber()",
+                                ".write": "auth != null",
+                                ".validate": "newData.hasChildren(['uid', 'text', 'time']) && newData.text.isString() && newData.text.val().length < 4000 && !newData.text.val().matches('(<script|javascript:|on\\\\w+=|<iframe)') && newData.uid.isString() && newData.time.isNumber()",
 
                                 "text": {
                                     ".validate": "newData.isString() && !newData.val().matches('(<script|javascript:|onerror=|onload=|onclick=)')"
                                 },
-                                "authorId": {
+                                "uid": {
                                     ".validate": "newData.isString() && newData.val() === auth.uid"
                                 }
                             }
@@ -176,7 +182,7 @@
                 "messages": {
                     "$msgId": {
                         ".write": "auth != null && (auth.uid === $chatId.split('_')[0] || auth.uid === $chatId.split('_')[1])",
-                        ".validate": "newData.hasChildren(['text', 'time', 'senderId']) && newData.text.isString() && newData.text.val().length < 4000 && !newData.text.val().matches('(<script|javascript:|onerror=|<iframe)') && newData.senderId.isString() && newData.senderId === auth.uid && newData.time.isNumber()"
+                        ".validate": "newData.hasChildren(['text', 'time', 'uid']) && newData.text.isString() && newData.text.val().length < 4000 && !newData.text.val().matches('(<script|javascript:|onerror=|<iframe)') && newData.uid.isString() && newData.uid.val() === auth.uid && newData.time.isNumber()"
                     }
                 }
             }
@@ -202,8 +208,8 @@
 
                 "messages": {
                     "$msgId": {
-                        ".write": "auth != null && data.child('members').child(auth.uid).exists()",
-                        ".validate": "newData.hasChildren(['text', 'time', 'senderId']) && newData.text.isString() && newData.text.val().length < 4000 && newData.senderId.isString() && newData.senderId === auth.uid && newData.time.isNumber()"
+                        ".write": "auth != null",
+                        ".validate": "newData.hasChildren(['text', 'time', 'uid']) && newData.text.isString() && newData.text.val().length < 4000 && newData.uid.isString() && newData.uid.val() === auth.uid && newData.time.isNumber()"
                     }
                 }
             }
@@ -354,9 +360,9 @@
 
         "webrtc_rooms": {
             "$roomId": {
-                ".read": "auth != null && data.child('participants').child(auth.uid).exists()",
+                ".read": "auth != null",
                 ".write": "auth != null",
-                ".validate": "newData.hasChildren(['createdAt', 'createdBy']) && newData.createdAt.isNumber() && newData.createdBy.isString()",
+                ".validate": "true",
 
                 "participants": {
                     "$uid": {

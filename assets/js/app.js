@@ -120,9 +120,21 @@ const ClickTracker = (() => {
 // GLOBAL NAVIGATION
 // ============================================================
 window.switchView = function (viewName) {
-    document.querySelectorAll('[id^="view-"]').forEach(el => el.style.display = 'none');
-    const target = document.getElementById(`view-${viewName}`);
-    if (target) target.style.display = (viewName === 'kord') ? 'flex' : 'block';
+    // Safety cleanup for voice lobby listeners when navigating away
+    if (window.activePreviewRef) {
+        window.activePreviewRef.off();
+    }
+
+    const $views = $('[id^="view-"]');
+    const $target = $(`#view-${viewName}`);
+    
+    if ($target.length) {
+        $views.fadeOut(120, function() {
+            $views.hide(); // safety
+            const displayType = (viewName === 'kord') ? 'flex' : 'block';
+            $target.css('display', displayType).hide().fadeIn(180);
+        });
+    }
 
     // Update Desktop Nav
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
