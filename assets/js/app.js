@@ -120,21 +120,30 @@ const ClickTracker = (() => {
 // GLOBAL NAVIGATION
 // ============================================================
 window.switchView = function (viewName) {
-    // Safety cleanup for voice lobby listeners when navigating away
-    if (window.activePreviewRef) {
-        window.activePreviewRef.off();
-    }
-
-    const $views = $('[id^="view-"]');
-    const $target = $(`#view-${viewName}`);
-    
-    if ($target.length) {
-        $views.fadeOut(120, function() {
-            $views.hide(); // safety
-            const displayType = (viewName === 'kord') ? 'flex' : 'block';
-            $target.css('display', displayType).hide().fadeIn(180);
+    // jQuery fade out current view
+    if (typeof $ !== 'undefined') {
+        .fadeOut(150, function() {
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.style.display = 'none');
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) {
+                target.style.display = (viewName === 'kord') ? 'flex' : 'block';
+                .hide().fadeIn(200);
+            }
+            // Rest of switchView continues below
+            _switchViewComplete(viewName);
         });
+        // Early return for nav highlight (doesn't depend on fade)
+        document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(el => el.classList.remove('active'));
+        const sidebarLink = document.querySelector(`.nav-item[onclick*="switchView('${viewName}')"]`);
+        if (sidebarLink) sidebarLink.classList.add('active');
+        const mobileLink = document.querySelector(`.mobile-nav-item[onclick*="switchView('${viewName}')"]`);
+        if (mobileLink) mobileLink.classList.add('active');
+        return;
     }
+    // Fallback: no jQuery
+    document.querySelectorAll('[id^="view-"]').forEach(el => el.style.display = 'none');
+    const target = document.getElementById(`view-${viewName}`);
+    if (target) target.style.display = (viewName === 'kord') ? 'flex' : 'block';
 
     // Update Desktop Nav
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -145,6 +154,13 @@ window.switchView = function (viewName) {
     document.querySelectorAll('.mobile-nav-item').forEach(el => el.classList.remove('active'));
     const mobileLink = document.querySelector(`.mobile-nav-item[onclick*="switchView('${viewName}')"]`);
     if (mobileLink) mobileLink.classList.add('active');
+
+    // Post-switch logic extracted for jQuery callback
+    if (typeof _switchViewComplete === 'function') _switchViewComplete(viewName);
+}
+
+// Callback for jQuery fade completion
+window._switchViewComplete = function(viewName) {
 
     if (viewName === 'explore') {
         const grid = document.getElementById('aiGrid');

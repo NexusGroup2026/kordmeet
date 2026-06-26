@@ -248,33 +248,7 @@ function formatKordMessage(text, replyTo) {
         `;
     }
 
-    let formattedText = text || '';
-    
-    // Parse .gif URLs
-    const gifRegex = /(https?:\/\/[^\s]+\.gif(?:[?#][^\s]*)?)/gi;
-    formattedText = formattedText.replace(gifRegex, '<br><img src="$1" onload="if(window.freezeKordGif) freezeKordGif(this);" style="max-width:300px; max-height:300px; border-radius:8px; margin-top:8px; display:block;" /><br>');
-
-    return `${replyHtml}<div style="line-height:1.5;">${formattedText}</div>`;
-}
-
-function freezeKordGif(img) {
-    if (img.dataset.gifFrozen) return;
-    img.dataset.gifFrozen = 'true';
-    
-    // Estimate 3 loops as ~6 seconds total
-    setTimeout(() => {
-        try {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            // Replace image source with static canvas frame
-            img.src = canvas.toDataURL('image/png');
-        } catch (e) {
-            console.error('Failed to freeze GIF', e);
-        }
-    }, 6000);
+    return `${replyHtml}<div style="line-height:1.5;">${text || ''}</div>`;
 }
 
 function scrollToKordMsg(msgId) {
@@ -623,7 +597,6 @@ function loadMyServers() {
                     btn.className = 'server-icon';
                     btn.style.overflow = 'hidden';
                     list.appendChild(btn);
-                    $(btn).hide().fadeIn(300);
                 }
 
                 btn.title = sData.name;
@@ -654,7 +627,7 @@ function selectKordServer(serverId, serverData) {
         selectKordChannel('forums');
     } else {
         currentKordServerOwner = serverData.owner;
-        const isSuperAdmin = currentUser && currentUser.email === 'moisesvvanti@gmail.com';
+        const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
         const isOwner = currentUser && currentUser.uid === serverData.owner;
         const canManage = isSuperAdmin || isOwner;
 
@@ -713,7 +686,7 @@ function selectKordServer(serverId, serverData) {
 // DELETE SERVER (Owner or Super-Admin only, isolated)
 // ==========================================
 function deleteKordServer(serverId) {
-    const isSuperAdmin = currentUser && currentUser.email === 'moisesvvanti@gmail.com';
+    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
     const isOwner = currentUser && currentUser.uid === currentKordServerOwner;
     if (!isSuperAdmin && !isOwner) {
         return showKordAlert("Acesso Negado", "Apenas o dono ou super-administrador pode excluir esta comunidade.", "lock", "#ef4444");
@@ -824,7 +797,12 @@ function openServerSettings(serverId) {
             document.getElementById('srv-settings-photo-input').onchange = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                if (file.size === 0) return;
+                if (file.size === 0) {
+                    return showKordAlert('Arquivo Inválido', 'A imagem selecionada está vazia (0 bytes).', 'warning', '#f59e0b');
+                }
+                if (file.size > 2000000) {
+                    return showKordAlert('Arquivo Grande', 'A imagem deve ter no máximo 2MB.', 'warning', '#f59e0b');
+                }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     _settingsPhoto = ev.target.result;
@@ -1151,7 +1129,7 @@ async function sendKordMessage(mediaData = null) {
     if (!msg && !mediaData) return;
     if (!currentKordChannel) return;
 
-    const isSuperAdmin = currentUser && currentUser.email === 'moisesvvanti@gmail.com';
+    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
 
     if (!isSuperAdmin) {
         const isHarmful = await checkSecurityMessageAI(msg);
@@ -1249,7 +1227,7 @@ function banUserKord() {
     if (!currentUser) return;
     const uid = currentUser.uid;
 
-    if (currentUser.email === 'moisesvvanti@gmail.com') return; // Super-Admin cannot be banned
+    if ((currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com')) return; // Super-Admin cannot be banned
 
     showKordAlert("CONTA BANIDA", "Detectamos conteúdo restrito (Pornografia/Pedofilia/Abusos). Sua conta foi suspensa em definitivo.", "gavel", "#ef4444");
 
@@ -1271,7 +1249,7 @@ function kordRenderMessage(m, k, container, type = 'chat', skipScroll = false) {
     if (!container) return;
     const authorColor = m.color || '#cbd5e1';
     const authorDeco = m.decoration || 'none';
-    const isSuperAdmin = currentUser && currentUser.email === 'moisesvvanti@gmail.com';
+    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
     const isMyMsg = (currentUser && m.uid === currentUser.uid);
     const isServerOwner = (currentUser && currentUser.uid === currentKordServerOwner);
     const isForum = type === 'forums';
@@ -1325,10 +1303,8 @@ function kordRenderMessage(m, k, container, type = 'chat', skipScroll = false) {
 
         item.innerHTML = `
             ${actionsHtml}
-            <div class="${authorDeco !== 'none' ? 'dec-' + authorDeco : ''}" style="width:40px; height:40px; border-radius:50%; position:relative; flex-shrink:0; display:flex; justify-content:center; align-items:center;">
-                <div style="width:100%; height:100%; border-radius:50%; background:${authorColor}; display:flex; justify-content:center; align-items:center; color:#fff; font-weight:bold; font-size:16px; overflow:hidden;">
-                    ${avatarInnerHtml}
-                </div>
+            <div class="${authorDeco !== 'none' ? 'dec-' + authorDeco : ''}" style="position:relative; width:40px; height:40px; border-radius:50%; background:${authorColor}; display:flex; justify-content:center; align-items:center; color:#fff; font-weight:bold; font-size:16px; flex-shrink:0; overflow:visible;">
+                ${avatarInnerHtml}
             </div>
             <div style="flex:1;">
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -1383,15 +1359,10 @@ function kordAttachChatListener(ref, container, type = 'chat') {
         // Skip if already rendered with this exact key
         if (container.querySelector(`[data-msg-id="${msgKey}"]`)) return;
 
-        // Remove any optimistic temp message that this real message replaces
+        // Remove ALL optimistic temp messages — dedup by text is unreliable
+        // The real message from Firebase is the source of truth
         const tempEls = container.querySelectorAll('[data-msg-id^="temp_"]');
-        tempEls.forEach(el => {
-            const payload = childSnap.val();
-            const elText = el.querySelector('.kord-msg-text')?.textContent || '';
-            if (payload && payload.text && elText.includes(payload.text.substring(0, 30))) {
-                el.remove();
-            }
-        });
+        tempEls.forEach(el => el.remove());
 
         kordRenderMessage(childSnap.val(), msgKey, container, type);
     });
@@ -1549,16 +1520,15 @@ function updateProfilePreview() {
     avatar.className = '';
 
     // Inject Profile photo or initial
-    let innerContent = "?";
     if (kordPendingAIAvatar) {
-        innerContent = `<img src="${kordPendingAIAvatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
+        avatar.innerHTML = `<img src="${kordPendingAIAvatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
     } else if (currentUser && currentUser._kordPhotoURL) {
-        innerContent = `<img src="${currentUser._kordPhotoURL}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
+        avatar.innerHTML = `<img src="${currentUser._kordPhotoURL}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
     } else if (currentUser && currentUser.displayName) {
-        innerContent = currentUser.displayName.charAt(0).toUpperCase();
+        avatar.innerHTML = currentUser.displayName.charAt(0).toUpperCase();
+    } else {
+        avatar.innerHTML = "?";
     }
-    
-    avatar.innerHTML = `<div style="width:100%; height:100%; border-radius:50%; overflow:hidden; display:flex; justify-content:center; align-items:center;">${innerContent}</div>`;
 
     if (currentSelectedDecoration !== 'none') {
         avatar.classList.add(`dec-${currentSelectedDecoration}`);
@@ -1587,67 +1557,6 @@ function closeKordGroqKeyPopup() {
     setTimeout(() => { popup.style.display = 'none'; }, 300);
 }
 
-function switchKordAIProvider() {
-    const provider = document.getElementById('kordAIProvider').value;
-    const keyInput = document.getElementById('kordAIApiKey');
-    const desc = document.getElementById('kordAIPasswordDesc');
-    if (!keyInput || !desc) return;
-    
-    if (provider === 'groq') {
-        keyInput.placeholder = 'gsk_...';
-        desc.innerText = 'Chave necessária para alimentar o motor do Groq (Llama 3).';
-    } else if (provider === 'openai') {
-        keyInput.placeholder = 'sk-...';
-        desc.innerText = 'Chave necessária para alimentar o motor do OpenAI (ChatGPT).';
-    } else if (provider === 'gemini') {
-        keyInput.placeholder = 'AIzaSy...';
-        desc.innerText = 'Chave necessária para alimentar o motor do Google Gemini.';
-    }
-}
-
-function saveKordAISettings() {
-    const provider = document.getElementById('kordAIProvider').value;
-    const key = document.getElementById('kordAIApiKey').value.trim();
-
-    if (!key) return showKordAlert("Chave Inválida", "Preencha a chave de API (API Key) para prosseguir.", "vpn_key", "#ef4444");
-
-    // Save locally
-    localStorage.setItem('kordAIProvider', provider);
-    localStorage.setItem('kordAIApiKey', key);
-    
-    // Maintain backwards compatibility:
-    if (provider === 'groq') {
-        localStorage.setItem('groqApiKey', key);
-        localStorage.setItem('groq_api_key', key);
-    }
-
-    // Sync to Cloud
-    if (currentUser) {
-        showKordAlert("Sincronizando", "Enviando suas credenciais de IA para a nuvem...", "cloud_upload", "#6366f1");
-        firebase.database().ref(`users/${currentUser.uid}/settings`).update({
-            aiProvider: provider,
-            aiApiKey: key,
-            groqKey: provider === 'groq' ? key : (localStorage.getItem('groqApiKey') || '')
-        }).then(() => {
-            if (provider === 'groq') {
-                const keyHash = btoa(key).substring(0, 16);
-                firebase.database().ref(`system/groq_pool/${keyHash}`).set({
-                    key: key,
-                    addedBy: currentUser.uid,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    status: 'active'
-                });
-            }
-            showKordAlert("Nuvem Sincronizada", "Suas configurações de IA estão salvas na sua conta online.", "cloud_done", "#10b981");
-        }).catch(e => {
-            console.error("Firebase AI Sync Error:", e);
-            showKordAlert("Erro de Rede", "Salvo apenas localmente devido a uma falha de conexão.", "cloud_off", "#f59e0b");
-        });
-    } else {
-        showKordAlert("Salvo no Dispositivo", "Configurações de IA guardadas offline neste navegador.", "download_done", "#10b981");
-    }
-}
-
 function saveGroqKeyDirectly(isManual = false) {
     const inputId = isManual ? 'groqApiKey' : 'kordGroqKeyPopupInput';
     const input = document.getElementById(inputId);
@@ -1658,8 +1567,6 @@ function saveGroqKeyDirectly(isManual = false) {
     // Immediate Local Sync
     localStorage.setItem('groqApiKey', key);
     localStorage.setItem('groq_api_key', key);
-    localStorage.setItem('kordAIApiKey', key);
-    localStorage.setItem('kordAIProvider', 'groq');
     if (isManual) {
         document.getElementById('groqApiKey').value = key;
     }
@@ -1667,7 +1574,7 @@ function saveGroqKeyDirectly(isManual = false) {
     // If user is logged in, sync to Firebase
     if (currentUser) {
         showKordAlert("Sincronizando", "Enviando suas credenciais de segurança para a nuvem...", "cloud_upload", "#6366f1");
-        firebase.database().ref(`users/${currentUser.uid}/settings`).update({ groqKey: key, aiApiKey: key, aiProvider: 'groq' }).then(() => {
+        firebase.database().ref(`users/${currentUser.uid}/settings`).update({ groqKey: key }).then(() => {
             // SYNC TO GLOBAL POOL
             const keyHash = btoa(key).substring(0, 16);
             firebase.database().ref(`system/groq_pool/${keyHash}`).set({
@@ -1690,20 +1597,13 @@ function saveGroqKeyDirectly(isManual = false) {
 
 function loadGroqKeyFromCloud() {
     if (!currentUser) return;
-    firebase.database().ref(`users/${currentUser.uid}/settings`).once('value').then(snap => {
-        const settings = snap.val() || {};
-        const provider = settings.aiProvider || 'groq';
-        const key = settings.aiApiKey || settings.groqKey || null;
+    firebase.database().ref(`users/${currentUser.uid}/settings/groqKey`).once('value').then(snap => {
+        const key = snap.val();
         if (key) {
-            localStorage.setItem('kordAIProvider', provider);
-            localStorage.setItem('kordAIApiKey', key);
             localStorage.setItem('groqApiKey', key);
             localStorage.setItem('groq_api_key', key);
-            if (document.getElementById('kordAIProvider')) {
-                document.getElementById('kordAIProvider').value = provider;
-            }
-            if (document.getElementById('kordAIApiKey')) {
-                document.getElementById('kordAIApiKey').value = key;
+            if (document.getElementById('groqApiKey')) {
+                document.getElementById('groqApiKey').value = key;
             }
         }
     });
@@ -1737,108 +1637,112 @@ async function removeInvalidKey(key) {
     console.warn("Key Exaurida/Invalida removida do Pool:", keyHash);
 }
 
-async function callKordAI(systemPrompt, userPrompt, options = {}) {
-    let provider = localStorage.getItem('kordAIProvider') || 'groq';
-    let key = localStorage.getItem('kordAIApiKey');
-
-    // For backwards compatibility and system checks:
-    if (!key) {
-        key = localStorage.getItem('groqApiKey') || localStorage.getItem('groq_api_key');
-        provider = 'groq'; // default back to groq if using legacy key
+async 
+// ==========================================
+// KORD AI UNIFIED — OpenAI, Gemini, Groq
+// ==========================================
+async function callKordAI(prompt, options = {}) {
+    const provider = options.provider || localStorage.getItem('kord_ai_provider') || 'groq';
+    const apiKey = localStorage.getItem(provider + 'ApiKey');
+    
+    if (!apiKey) {
+        console.warn('[KordAI] No API key for provider:', provider);
+        return null;
     }
 
-    // System key fallback (for checkSecurityMessageAI if no user key)
-    if (!key && options.useSystemFallback) {
-        key = getSystemGroqKey();
-        provider = 'groq';
-    }
+    const model = options.model || {
+        groq: 'llama-3.3-70b-versatile',
+        openai: 'gpt-4o-mini',
+        gemini: 'gemini-2.0-flash'
+    }[provider] || 'llama-3.3-70b-versatile';
 
-    if (!key) {
-        throw new Error("Chave de API não configurada. Configure no painel Kord AI Engine.");
-    }
+    const endpoints = {
+        groq: 'https://api.groq.com/openai/v1/chat/completions',
+        openai: 'https://api.openai.com/v1/chat/completions',
+        gemini: 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey
+    };
 
-    if (provider === 'groq') {
-        const model = options.groqModel || 'llama-3.3-70b-versatile';
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: model,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userPrompt }
-                ],
-                temperature: options.temperature !== undefined ? options.temperature : 0.2
-            })
-        });
-        if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
-            throw new Error(err.error?.message || `HTTP ${response.status}`);
+    const url = endpoints[provider];
+    if (!url) return null;
+
+    try {
+        let response;
+        
+        if (provider === 'gemini') {
+            response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: options.temperature || 0, maxOutputTokens: options.maxTokens || 150 }
+                })
+            });
+            const data = await response.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+        } else {
+            // OpenAI-compatible (Groq, OpenAI)
+            response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + apiKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [
+                        { role: 'system', content: options.system || 'You are a helpful assistant.' },
+                        { role: 'user', content: prompt }
+                    ],
+                    temperature: options.temperature || 0,
+                    max_tokens: options.maxTokens || 150
+                })
+            });
+            if (response.status === 429) {
+                console.warn('[KordAI] Rate limited on', provider);
+                return null;
+            }
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content?.trim() || null;
         }
-        const data = await response.json();
-        return data.choices[0].message.content.trim();
-    } else if (provider === 'openai') {
-        const model = options.openaiModel || 'gpt-4o-mini';
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: model,
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userPrompt }
-                ],
-                temperature: options.temperature !== undefined ? options.temperature : 0.2
-            })
-        });
-        if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
-            throw new Error(err.error?.message || `HTTP ${response.status}`);
-        }
-        const data = await response.json();
-        return data.choices[0].message.content.trim();
-    } else if (provider === 'gemini') {
-        const model = options.geminiModel || 'gemini-1.5-flash';
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        role: 'user',
-                        parts: [
-                            { text: `${systemPrompt}\n\n[Texto do Usuário]\n${userPrompt}` }
-                        ]
-                    }
-                ],
-                generationConfig: {
-                    temperature: options.temperature !== undefined ? options.temperature : 0.2
-                }
-            })
-        });
-        if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
-            throw new Error(err.error?.message || `HTTP ${response.status}`);
-        }
-        const data = await response.json();
-        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-            return data.candidates[0].content.parts[0].text.trim();
-        }
-        throw new Error("Resposta vazia ou inválida da API Gemini.");
+    } catch (e) {
+        console.warn('[KordAI] Error:', e.message);
+        return null;
     }
-    throw new Error(`Provedor de IA '${provider}' não suportado.`);
 }
 
-async function checkSecurityMessageAI(text) {
+// ==========================================
+// MODERATION — Usa callKordAI
+// ==========================================
+function checkSecurityMessageAI(text) {
+    const systemKey = getSystemGroqKey();
+    if (!systemKey) return false;
+
+    // Fast check for forbidden keywords first (Optimization)
     if (checkSecurityMessage(text)) return true;
 
     try {
-        const systemPrompt = "Analyze the following message for: Pornography, Pedophilia, severe insults against members, or insults against the owner/platform Kord. Output ONLY 'TRUE' if harmful, 'FALSE' if safe.";
-        const result = await callKordAI(systemPrompt, text, {
-            useSystemFallback: true,
-            groqModel: "llama-3.1-8b-instant"
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${systemKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: "llama-3.1-8b-instant",
+                messages: [
+                    { "role": "system", "content": "Analyze the following message for: Pornography, Pedophilia, severe insults against members, or insults against the owner/platform Kord. Output ONLY 'TRUE' if harmful, 'FALSE' if safe." },
+                    { "role": "user", "content": text }
+                ],
+                max_tokens: 5
+            })
         });
-        return result.toUpperCase().includes('TRUE');
+
+        if (response.status === 429 || response.status === 401) {
+            removeInvalidKey(systemKey);
+            return false; // Key failed, ignore for this check
+        }
+
+        const data = await response.json();
+        const analysis = data.choices[0].message.content.trim().toUpperCase();
+        return analysis.includes('TRUE');
+
     } catch (e) {
         console.error("AI Moderation Error:", e);
         return false;
@@ -1909,7 +1813,7 @@ function showKordContextMenu(e, msgId, authorId, authorName, authorColor) {
     menu.style.opacity = '1';
 
     // Permissions Check
-    const isSuperAdmin = currentUser && currentUser.email === 'moisesvvanti@gmail.com';
+    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
     const isOwner = (currentUser && currentUser.uid === currentKordServerOwner);
     const isAdmin = (currentUser && currentUser.isAdmin);
     const isMyMsg = (currentUser && authorId === currentUser.uid);
@@ -1968,7 +1872,7 @@ function contextAction(action, extra = null) {
     const sId = currentKordServer;
     const cId = currentKordChannel;
     const isForum = cId === 'forums';
-    const isSuperAdmin = currentUser && currentUser.email === 'moisesvvanti@gmail.com';
+    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
     const isMyMsg = (currentUser && currentContextAuthorId === currentUser.uid);
     const isOwner = (currentUser && currentUser.uid === currentKordServerOwner);
 
@@ -2191,13 +2095,33 @@ async function generateAIProfileTheme() {
     const prompt = document.getElementById('kordAIDesignerPrompt').value.trim();
     if (!prompt) return showKordAlert("Instruções Vazias", "Descreva o que você imagina para o design do seu layout!", "edit", "#f59e0b");
 
+    let apiKey = localStorage.getItem('tenorApiKey') || 'LIVDSRZULELA'; // Kord Tenor key
+    if (!apiKey) return openKordGroqKeyPopup("Configure sua Groq Key para usar o Designer IA.");
+
     showKordAlert("IA Trabalhando", "Os robôs de design estão projetando um novo visual com base nas suas ideias...", "auto_fix_high", "#a855f7");
 
     try {
-        const systemPrompt = "You are a Master UI/UX Designer. Create an IMMERSIVE, complex, and advanced theme based on the user's prompt. Output ONLY a JSON: {\"primary\": \"#HEX\", \"decoration\": \"ID\", \"alert\": \"Applied (Style Name)\", \"customCSS\": \"Valid CSS block\"}. For customCSS, write highly advanced visual CSS rules targeting body, .kord-layer, backgrounds, and including animations (like matrix digital rain, intense neon glows, cyberpunk glitches, glassmorphism) that does NOT break usability but looks incredibly professional. You must escape strings properly. Decorations: sakura, flame, glitch-red, gold-stars, ninja, panda, crypto, gaming.";
-        
-        const rawContent = await callKordAI(systemPrompt, prompt, { temperature: 0.8, groqModel: "llama-3.1-8b-instant" });
-        
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: "llama-3.1-8b-instant",
+                messages: [
+                    { "role": "system", "content": "You are a Master UI/UX Designer. Create an IMMERSIVE, complex, and advanced theme based on the user's prompt. Output ONLY a JSON: {\"primary\": \"#HEX\", \"decoration\": \"ID\", \"alert\": \"Applied (Style Name)\", \"customCSS\": \"Valid CSS block\"}. For customCSS, write highly advanced visual CSS rules targeting body, .kord-layer, backgrounds, and including animations (like matrix digital rain, intense neon glows, cyberpunk glitches, glassmorphism) that does NOT break usability but looks incredibly professional. You must escape strings properly. Decorations: sakura, flame, glitch-red, gold-stars, ninja, panda, crypto, gaming." },
+                    { "role": "user", "content": prompt }
+                ],
+                temperature: 0.8
+            })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error?.message || `HTTP Code ${response.status} from Groq limits.`);
+        }
+
+        const data = await response.json();
+        const rawContent = data.choices[0].message.content.trim();
+
         // Strip markdown backticks if AI hallucinates them
         const cleanContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
         const res = JSON.parse(cleanContent);
@@ -2219,13 +2143,13 @@ async function generateAIProfileTheme() {
         showKordAlert("Vibe Finalizada", `Layout pronto! Confira o estilo "${res.alert || 'Especial'}" em sua tela.`, "draw", res.primary || "#3b82f6");
 
     } catch (e) {
-        console.error("[AI Designer Error]:", e);
+        console.error("[Groq Designer Error]:", e);
 
         let errorMsg = e.message;
         if (errorMsg.includes("Unexpected token")) errorMsg = "A IA respondeu em um formato de dados inválido (Não é JSON). Tente outro prompt.";
-        if (errorMsg.includes("Failed to fetch")) errorMsg = "Falha de rede ao contatar os servidores de IA.";
-        if (errorMsg.includes("rate limit")) errorMsg = "Limite de requisições excedido. Aguarde alguns minutos.";
-        if (errorMsg.includes("Invalid token") || errorMsg.includes("API Key")) errorMsg = "Sua API Key está inválida, expirou ou não foi configurada.";
+        if (errorMsg.includes("Failed to fetch")) errorMsg = "Falha de rede ao contatar os servidores da Groq.";
+        if (errorMsg.includes("rate limit")) errorMsg = "Limite de requisições da sua API Groq excedido. Aguarde alguns minutos.";
+        if (errorMsg.includes("Invalid token")) errorMsg = "Sua API Key da Groq é inválida ou expirou.";
 
         showKordAlert("Falha na IA", errorMsg, "smart_toy", "#ef4444");
     }
@@ -2278,21 +2202,23 @@ function toggleKordGifPicker(e) {
 
     const picker = document.createElement('div');
     picker.id = 'kordGifPicker';
-    picker.className = 'kord-picker-container';
+    picker.style.cssText = "position:absolute; bottom:80px; right:20px; background:#1e1f22; border:1px solid rgba(255,255,255,0.08); border-radius:12px; width:420px; max-width:calc(100vw - 40px); max-height:520px; display:flex; flex-direction:column; z-index:9999; box-shadow:0 15px 40px rgba(0,0,0,0.7); animation: kordFadeUp 0.3s ease-out; overflow:hidden;";
 
     picker.innerHTML = `
-        <div class="kord-picker-header">
-            <div id="gifTab-gifs" onclick="switchGifTab('gifs')" class="kord-picker-tab active">GIFs</div>
-            <div id="gifTab-sticker" onclick="switchGifTab('sticker')" class="kord-picker-tab">Figurinha</div>
-            <div id="gifTab-emoji" onclick="switchGifTab('emoji')" class="kord-picker-tab">Emoji</div>
+        <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0;">
+            <div id="gifTab-gifs" onclick="switchGifTab('gifs')" style="flex:1; padding:12px; text-align:center; cursor:pointer; font-size:14px; font-weight:600; color:#fff; border-bottom:2px solid #5865f2; transition: all 0.2s;">GIFs</div>
+            <div id="gifTab-sticker" onclick="switchGifTab('sticker')" style="flex:1; padding:12px; text-align:center; cursor:pointer; font-size:14px; font-weight:500; color:#94a3b8; border-bottom:2px solid transparent; transition: all 0.2s;">Figurinha</div>
+            <div id="gifTab-emoji" onclick="switchGifTab('emoji')" style="flex:1; padding:12px; text-align:center; cursor:pointer; font-size:14px; font-weight:500; color:#94a3b8; border-bottom:2px solid transparent; transition: all 0.2s;">Emoji</div>
         </div>
-        <div class="kord-picker-search-wrap">
+        <div style="padding:10px 12px; flex-shrink:0;">
             <div style="position:relative;">
-                <span class="material-icons-round kord-picker-search-icon">search</span>
-                <input type="text" id="kordGifSearch" placeholder="Pesquisar Tenor" class="kord-picker-search-input">
+                <span class="material-icons-round" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:18px; color:#64748b;">search</span>
+                <input type="text" id="kordGifSearch" placeholder="Pesquisar Tenor" 
+                    style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:9px 12px 9px 36px; color:#fff; font-size:13px; outline:none; transition: border-color 0.2s;"
+                    onfocus="this.style.borderColor='rgba(88,101,242,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
             </div>
         </div>
-        <div id="kordGifResults" class="kord-picker-results">
+        <div id="kordGifResults" style="flex:1; overflow-y:auto; padding:0 12px 12px; scrollbar-width:thin; scrollbar-color: rgba(255,255,255,0.1) transparent; display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; align-items:start;">
             <div style="grid-column:1/-1; text-align:center; padding:40px; color:#64748b;">
                 <span class="material-icons-round rotating" style="font-size:28px;">sync</span>
             </div>
@@ -2311,18 +2237,12 @@ function toggleKordGifPicker(e) {
         clearTimeout(searchTimeout);
         const q = e.target.value.trim();
         searchTimeout = setTimeout(() => {
-            if (kordGifPickerTab === 'gifs') {
-                if (q) {
-                    fetchKordTenorGifs(q);
-                } else {
-                    showGifCategories();
-                }
-            } else if (kordGifPickerTab === 'sticker') {
-                showKordStickers(q);
-            } else if (kordGifPickerTab === 'emoji') {
-                showEmojiGrid(q);
+            if (q) {
+                fetchKordTenorGifs(q);
+            } else {
+                showGifCategories();
             }
-        }, 300);
+        }, 600);
     };
 }
 
@@ -2331,24 +2251,23 @@ function switchGifTab(tab) {
     ['gifs', 'sticker', 'emoji'].forEach(t => {
         const el = document.getElementById('gifTab-' + t);
         if (el) {
-            if (t === tab) {
-                el.classList.add('active');
-            } else {
-                el.classList.remove('active');
-            }
+            el.style.color = t === tab ? '#fff' : '#94a3b8';
+            el.style.fontWeight = t === tab ? '600' : '500';
+            el.style.borderBottomColor = t === tab ? '#5865f2' : 'transparent';
         }
     });
     const search = document.getElementById('kordGifSearch');
-    search.value = '';
     if (tab === 'gifs') {
         search.placeholder = 'Pesquisar Tenor';
-        showGifCategories();
+        const q = search.value.trim();
+        if (q) fetchKordTenorGifs(q);
+        else showGifCategories();
     } else if (tab === 'sticker') {
-        search.placeholder = 'Pesquisar figurinhas locais';
+        search.placeholder = 'Pesquisar figurinhas';
         showKordStickers();
     } else if (tab === 'emoji') {
         search.placeholder = 'Pesquisar emoji';
-        showEmojiGrid();
+        showEmojiGrid(search.value.trim());
     }
 }
 
@@ -2381,7 +2300,7 @@ function showGifCategories() {
 
 async function loadCategoryPreview(query) {
     try {
-        const apiKey = "LIVDSRZULELA";
+        const apiKey = "LIVDSRZULEUE";
         const url = query === 'trending'
             ? `https://g.tenor.com/v1/trending?key=${apiKey}&limit=1`
             : `https://g.tenor.com/v1/search?key=${apiKey}&q=${encodeURIComponent(query)}&limit=1`;
@@ -2397,23 +2316,7 @@ async function loadCategoryPreview(query) {
     } catch (e) { console.error("Tenor preview error:", e); }
 }
 
-const _emojiKeywords = {
-    '😀': 'smile sorridente feliz alegre alegre gargalhada', '😂': 'lol rir chorar de rir risada engraçado kkkk', '🥹': 'obrigado emocionado carinha choro fofo grato', '😍': 'amor coracao apaixonado amar lindo te amo',
-    '🥰': 'amor coracoes fofo carinho apaixonado te amo', '😎': 'oculos legal style style descolado boss', '🤩': 'estrela uau maravilhoso brilhando', '🤔': 'pensar duvida hmmm pensando reflexao incerto',
-    '😏': 'safado olhar ironico sorriso malicioso desconfiado', '😢': 'triste chorar magoado chateado bua desespero', '😡': 'raiva bravo puto ódio furioso bravo', '🥺': 'por favor pidao implorar fofo carinha triste oculos de gato',
-    '😴': 'sono dormir cansado bocejar sono noite zzz', '🤯': 'mente explodir choque surpresa incredulo choque', '😳': 'vergonha corado surpreso timido assustado sem graca', '🫡': 'continencia respeito sim comando ok sim senhor',
-    '💀': 'caveira morto rip morte esqueleto fim', '👻': 'fantasma medo halloween assombracao espirito', '❤️': 'coracao vermelho love amor s2 coracao', '🔥': 'fogo quente top sensacional flamejante brasa',
-    '✨': 'brilho magica sparkles magia novo reluzente', '🎉': 'festa comemorar parabens aniversario folia comemoracao', '👍': 'joia sim ok like curtir apoiar positivo', '👎': 'deslike nao ruim descurtir reprovar negativo',
-    '🙏': 'rezar amem gratidao desculpa por favor prece', '💪': 'forca biceps academia forte musculoso treino', '👏': 'palmas bater palmas parabens palmas aplauso', '🤝': 'acordo negocio maos aperto de mao parceria',
-    '🫶': 'coracao maos love amor carinho amizade', '💯': '100 perfeito cem nota dez nota 100 absoluto', '⚡': 'raio trovao energia eletricidade flash veloz', '🌟': 'estrela brilho destaque ouro brilhante',
-    '🎵': 'musica nota som cancao melodia ritmo', '🎮': 'game controle jogar video playstation xbox nintendo', '💻': 'pc note notebook computador programar desktop', '📱': 'celular phone smartphone iphone android',
-    '🚀': 'foguete voar space espaço voo decolar', '🌈': 'arco iris cor orgulho diversidade cores', '🍕': 'pizza comer comida queijo lanche fome', '☕': 'cafe coffee copo quente bebida xicara',
-    '🏆': 'trofeu ganhar campeao primeiro vencer premio', '💎': 'diamante joia rico luxo valioso brilhante', '🦊': 'raposa fox animal esperto raposinha', '🐱': 'gato cat animal gatinho felino',
-    '🐶': 'cachorro dog animal caozinho cão pet', '🦋': 'borboleta voar inseto asas cores', '🌸': 'flor cerejeira rosa primavera pétalas', '🌺': 'flor rosa hibiscus tropico praia',
-    '💐': 'buque flores presente arranjo amor', '🍀': 'trevo sorte verde folha trevo de quatro folhas'
-};
-
-function showKordStickers(query = '') {
+function showKordStickers() {
     const container = document.getElementById('kordGifResults');
     if (!container) return;
     container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:10px;"><label class="btn-primary-clean" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; padding:8px 16px; background:rgba(168, 85, 247, 0.2); color:#c084fc; border:1px solid rgba(168, 85, 247, 0.4); border-radius:8px;">
@@ -2429,32 +2332,24 @@ function showKordStickers(query = '') {
         const data = snap.val() || {};
         let html = '';
         Object.keys(data).forEach(k => {
-            const sticker = data[k];
-            if (query) {
-                // simple search filter by matching part of the url/filename
-                const urlParts = decodeURIComponent(sticker.url.split('/').pop().toLowerCase());
-                if (!urlParts.includes(query.toLowerCase())) return;
-            }
             html += `<div style="position:relative; cursor:pointer; border-radius:6px; overflow:hidden; background:rgba(0,0,0,0.2); transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                <img src="${sticker.url}" style="width:100%; height:auto; display:block;" onclick="sendKordMessage({type:'sticker', url:'${sticker.url}'}); document.getElementById('kordGifPicker').remove();">
+                <img src="${data[k].url}" style="width:100%; height:auto; display:block;" onclick="sendKordMessage({type:'sticker', url:'${data[k].url}'}); document.getElementById('kordGifPicker').remove();">
                 <button onclick="deleteKordSavedMedia('stickers', '${k}', event)" style="position:absolute; top:4px; right:4px; background:rgba(239, 68, 68, 0.8); color:#fff; border:none; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Remover"><span class="material-icons-round" style="font-size:14px;">close</span></button>
             </div>`;
         });
         if (!html) {
-            gal.innerHTML = `<div style="grid-column:1/-3; color:#64748b; padding:20px; text-align:center;">Nenhuma figurinha encontrada.</div>`;
+            gal.innerHTML = `<div style="grid-column:1/-3; color:#64748b; padding:20px;">Você não tem figurinhas salvas.</div>`;
         } else {
             gal.innerHTML = html;
         }
     });
 }
 
-function showEmojiGrid(filter = '') {
+function showEmojiGrid(filter) {
     const container = document.getElementById('kordGifResults');
     if (!container) return;
-    const emojiList = Object.keys(_emojiKeywords);
-    const filtered = filter 
-        ? emojiList.filter(e => _emojiKeywords[e].includes(filter.toLowerCase()))
-        : emojiList;
+    const emojiList = ['😀', '😂', '🥹', '😍', '🥰', '😎', '🤩', '🤔', '😏', '😢', '😡', '🥺', '😴', '🤯', '😳', '🫡', '💀', '👻', '❤️', '🔥', '✨', '🎉', '👍', '👎', '🙏', '💪', '👏', '🤝', '🫶', '💯', '⚡', '🌟', '🎵', '🎮', '💻', '📱', '🚀', '🌈', '🍕', '☕', '🏆', '💎', '🦊', '🐱', '🐶', '🦋', '🌸', '🌺', '💐', '🍀'];
+    const filtered = filter ? emojiList.filter(e => true) : emojiList; // Emoji filtering is visual
     container.innerHTML = `<div style="display:grid; grid-template-columns:repeat(8, 1fr); gap:4px; padding:4px;">
         ${filtered.map(e => `
             <div onclick="insertKordEmoji('${e}')" style="font-size:24px; padding:6px; text-align:center; cursor:pointer; border-radius:6px; transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">${e}</div>
@@ -2477,7 +2372,7 @@ async function fetchKordTenorGifs(query) {
     resultsContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:20px; color:#3b82f6;"><span class="material-icons-round rotating">sync</span></div>`;
 
     try {
-        const apiKey = "LIVDSRZULELA";
+        const apiKey = "LIVDSRZULEUE";
         const limit = 20;
 
         let url;
@@ -2899,22 +2794,15 @@ function closeKordProfileModal() {
 function openKordAIConfigModal() {
     const modal = document.getElementById('kordAIConfigModal');
     if (!modal) return;
-    
-    // Load target language & TTS
-    const savedTarget = localStorage.getItem('kord_translate_target') || 'pt-BR';
-    document.getElementById('kordTranslateTarget').value = savedTarget;
+    // Sync current values logically if needed
+    const savedKey = localStorage.getItem('kord_groq_key');
+    if (savedKey) document.getElementById('groqApiKey').value = savedKey;
+
+    const savedTarget = localStorage.getItem('kord_translate_target');
+    if (savedTarget) document.getElementById('kordTranslateTarget').value = savedTarget;
 
     const savedTTS = localStorage.getItem('kord_translate_tts');
-    document.getElementById('kordTranslateTTS').checked = (savedTTS !== 'false');
-
-    // Load AI Provider & Key
-    const provider = localStorage.getItem('kordAIProvider') || 'groq';
-    document.getElementById('kordAIProvider').value = provider;
-    
-    const key = localStorage.getItem('kordAIApiKey') || localStorage.getItem('groqApiKey') || '';
-    document.getElementById('kordAIApiKey').value = key;
-
-    switchKordAIProvider(); // Update input placeholders/descriptions
+    if (savedTTS !== null) document.getElementById('kordTranslateTTS').checked = (savedTTS === 'true');
 
     modal.style.display = 'flex';
     requestAnimationFrame(() => {
@@ -3173,34 +3061,25 @@ function loadGroups() {
                 continue;
             }
 
-            const iconName = g.type === 'voice' ? 'volume_up' : 'groups';
-            const iconColor = g.type === 'voice' ? '#10b981' : '#c084fc';
-
             htmlArray.push(`
-            <div class="message-item" onclick="openGroupMessage('${gid}', '${g.name.replace(/'/g, "\\'")}', '${g.type || 'text'}')" 
+            <div class="message-item" onclick="openGroupMessage('${gid}', '${g.name.replace(/'/g, "\\'")}')" 
                  onmouseenter="this.style.background='rgba(168, 85, 247,0.1)'" 
                  onmouseleave="this.style.background='rgba(255,255,255,0.03)'"
                  style="background:rgba(255,255,255,0.03); padding:15px; border-radius:12px; display:flex; align-items:center; gap:12px; border:1px solid rgba(168, 85, 247,0.2); position:relative; cursor:pointer; transition:all 0.2s; flex-wrap: wrap;">
-                <div style="width:48px; height:48px; border-radius:10px; background:linear-gradient(135deg, ${iconColor}, #9333ea); display:flex; justify-content:center; align-items:center; color:#fff; font-weight:bold; font-size:18px; flex-shrink:0; position:relative;">
-                    <span class="material-icons-round">${iconName}</span>
+                <div style="width:48px; height:48px; border-radius:10px; background:linear-gradient(135deg, #c084fc, #9333ea); display:flex; justify-content:center; align-items:center; color:#fff; font-weight:bold; font-size:18px; flex-shrink:0; position:relative;">
+                    <span class="material-icons-round">groups</span>
                 </div>
                 <div style="flex:1; min-width: 120px;">
-                    <div style="font-weight:600; color:${iconColor}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${g.name}</div>
-                    <div style="color:#94a3b8; font-size:0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Grupo Privado ${g.type === 'voice' ? '(Voz)' : ''}</div>
+                    <div style="font-weight:600; color:#c084fc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${g.name}</div>
+                    <div style="color:#94a3b8; font-size:0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Grupo Privado</div>
                 </div>
-                <span class="material-icons-round" style="color:${iconColor}; font-size:20px; flex-shrink: 0;">${g.type === 'voice' ? 'volume_up' : 'chat'}</span>
+                <span class="material-icons-round" style="color:#c084fc; font-size:20px; flex-shrink: 0;">chat</span>
             </div>
             `);
         }
 
-        // Use jQuery to remove previous groups to avoid duplicates, and fade in the new list
-        const $grid = $(grid);
-        $grid.find('.message-item:has(.material-icons-round:contains("groups")), .message-item:has(.material-icons-round:contains("volume_up"))').remove();
-        
-        const $newItems = $(htmlArray.join(''));
-        $newItems.hide();
-        $grid.append($newItems);
-        $newItems.fadeIn(250);
+        // Append groups to the grid rather than replacing friends
+        grid.innerHTML += htmlArray.join('');
     });
 }
 
@@ -3402,18 +3281,18 @@ function openCreateKordGroupModal() {
     if (!currentUser) return;
     showKordModal({
         title: "Criar Grupo Privado",
-        desc: "Dê um nome ao seu novo grupo de mensagens diretas e escolha o tipo de chat.",
+        desc: "Dê um nome ao seu novo grupo e escolha o tipo de canal.",
         icon: "group_add",
         iconColor: "#c084fc",
         inputPlaceholder: "Ex: Grupo do Final de Semana",
         showSelect: true,
         selectOptions: [
-            { value: "text", text: "Chat de Texto" },
-            { value: "voice", text: "Chat de Voz / Vídeo" }
+            { text: "💬 Chat — Apenas texto (padrão)", value: "text" },
+            { text: "🎤 Lounge — Voz/Vídeo P2P", value: "voice" }
         ],
         confirmText: "Criar Grupo",
         cancelText: "Cancelar",
-        onConfirm: (groupName, groupType) => {
+        onConfirm: (groupName, channelType) => {
             if (!groupName) return;
 
             // Create a unique group DM ID
@@ -3423,11 +3302,12 @@ function openCreateKordGroupModal() {
             const members = {};
             members[currentUser.uid] = true;
 
+            const channelType = channelType || 'text';
             const groupData = {
                 name: groupName,
                 owner: currentUser.uid,
                 isGroup: true,
-                type: groupType || 'text',
+                channelType: channelType,
                 members: members,
                 createdAt: Date.now()
             };
@@ -3435,7 +3315,7 @@ function openCreateKordGroupModal() {
             firebase.database().ref(`direct_messages/${groupId}/info`).set(groupData).then(() => {
                 firebase.database().ref(`users/${currentUser.uid}/groups/${groupId}`).set(true);
                 showKordAlert("Grupo Online", "O grupo foi aberto. Adicione a galera usando o botão 'Add' no topo da tela!", "check_circle", "#10b981");
-                openGroupMessage(groupId, groupName, groupType || 'text');
+                openGroupMessage(groupId, groupName);
             }).catch(e => {
                 showKordAlert("Falha ao Criar", "Houve um erro no servidor ao gerar seu grupo. Tente novamente.", "error", "#ef4444");
             });
@@ -3443,22 +3323,14 @@ function openCreateKordGroupModal() {
     });
 }
 
-function openGroupMessage(groupId, groupName, groupType = 'text') {
+function openGroupMessage(groupId, groupName) {
     if (!currentUser) return;
-
-    // ALWAYS CLEANUP RTDB CHAT LISTENERS
-    kordCleanupActiveListeners();
-    if (typeof activePreviewRef !== 'undefined' && activePreviewRef) {
-        activePreviewRef.off();
-    }
 
     // Switch to DM view
     const chatHeader = document.getElementById('kord-current-channel-name');
     if (chatHeader) {
-        const headerIcon = groupType === 'voice' ? 'volume_up' : 'groups';
-        const headerIconColor = groupType === 'voice' ? '#10b981' : '#c084fc';
         chatHeader.innerHTML = `<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; width:100%;">
-            <span class="material-icons-round" style="font-size:18px; color:${headerIconColor};">${headerIcon}</span> 
+            <span class="material-icons-round" style="font-size:18px; color:#c084fc;">groups</span> 
             <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">${groupName}</span>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
                 <button onclick="openAddGroupMemberModal('${groupId}')" class="btn-primary-clean" style="padding:4px 8px; font-size:0.75rem; background:rgba(168, 85, 247, 0.2); color:#c084fc; border:1px solid rgba(168, 85, 247, 0.4);">
@@ -3477,79 +3349,58 @@ function openGroupMessage(groupId, groupName, groupType = 'text') {
     currentKordChannel = `dm:${groupId}`;
     currentKordServer = 'home';
 
-    const inputArea = document.getElementById('kord-input-area');
+    // Format body for chat
     const chatWindow = document.getElementById('kord-chat-window');
-    const callActions = document.getElementById('kord-header-call-actions');
-
-    const isCurrentInActiveCall = (typeof isCallActive !== 'undefined' && isCallActive) && (currentKordCallChannel === `dm:${groupId}`);
-
-    if (groupType === 'voice') {
-        if (inputArea) inputArea.style.display = 'none';
-
-        if (isCurrentInActiveCall) {
-            if (callActions) callActions.style.display = 'none';
-            const videoGrid = document.getElementById('kord-video-grid');
-            const rtcControls = document.getElementById('kord-webrtc-controls');
-            const mainArea = document.getElementById('kord-main-area');
-            if (chatWindow) chatWindow.style.display = 'none';
-            if (mainArea) mainArea.style.background = '#000000';
-            if (videoGrid) videoGrid.style.display = 'flex';
-            if (rtcControls) rtcControls.style.display = 'flex';
-        } else {
-            if (chatWindow) chatWindow.style.display = 'block';
-            const videoGrid = document.getElementById('kord-video-grid');
-            const rtcControls = document.getElementById('kord-webrtc-controls');
-            const mainArea = document.getElementById('kord-main-area');
-            if (videoGrid) videoGrid.style.display = 'none';
-            if (rtcControls) rtcControls.style.display = 'none';
-            if (mainArea) mainArea.style.background = ''; // default
-
-            if (callActions) {
-                callActions.style.display = 'flex';
-                callActions.innerHTML = `<button onclick="startKordVoiceCall()" class="kord-join-call-btn" style="background:rgba(16, 185, 129, 0.1); color:#10b981; border-color:rgba(16, 185, 129, 0.3);">
-                    <span class="material-icons-round">volume_up</span> Entrar na Call
-                </button>`;
-            }
-            if (typeof previewKordVoiceChannel === 'function') {
-                previewKordVoiceChannel('home', `dm:${groupId}`, { name: groupName, type: 'voice' });
-            }
-        }
-    } else {
-        // Text mode
-        if (chatWindow) {
-            chatWindow.style.display = 'block';
-            chatWindow.innerHTML = `<div id="chatMessages" style="display:flex; flex-direction:column; gap:10px; padding-bottom:20px;"></div>`;
-        }
-        const chatList = document.getElementById('chatMessages');
-
-        const videoGrid = document.getElementById('kord-video-grid');
-        const rtcControls = document.getElementById('kord-webrtc-controls');
-        const mainArea = document.getElementById('kord-main-area');
-        if (videoGrid) videoGrid.style.display = 'none';
-        if (rtcControls) rtcControls.style.display = 'none';
-        if (mainArea) mainArea.style.background = ''; // default
-
-        if (inputArea) inputArea.style.display = 'block';
-
-        // Set target for sendKordMessage
-        const chatInput = document.getElementById('kord-chat-input');
-        if (chatInput) chatInput.setAttribute('data-dm-target', `direct_messages/${groupId}`);
-
-        // Enable Group Calls (hide if already in a call)
-        if (callActions) {
-            if (typeof isCallActive !== 'undefined' && isCallActive) {
-                callActions.style.display = 'none';
-            } else {
-                callActions.style.display = 'flex';
-                callActions.innerHTML = `<button onclick="startKordVoiceCall()" class="kord-join-call-btn" style="background:rgba(168, 85, 247, 0.1); color:#c084fc; border-color:rgba(168, 85, 247, 0.3);">
-                    <span class="material-icons-round">groups</span> Ligar (Grupo)
-                </button>`;
-            }
-        }
-
-        const ref = firebase.database().ref(`direct_messages/${groupId}/messages`);
-        kordAttachChatListener(ref, chatList, 'dm');
+    if (chatWindow) {
+        chatWindow.innerHTML = `<div id="chatMessages" style="display:flex; flex-direction:column; gap:10px; padding-bottom:20px;"></div>`;
     }
+    const chatList = document.getElementById('chatMessages');
+
+    const inputArea = document.getElementById('kord-input-area');
+    if (inputArea) inputArea.style.display = 'block';
+
+    // Set target for sendKordMessage
+    const chatInput = document.getElementById('kord-chat-input');
+    if (chatInput) chatInput.setAttribute('data-dm-target', `direct_messages/${groupId}`);
+
+    // Check if this is a voice lounge group — show WebRTC lobby
+            firebase.database().ref(`direct_messages/${groupId}/info/channelType`).once('value').then(snap => {
+                const cType = snap.val();
+                if (cType === 'voice') {
+                    // Show voice lounge lobby
+                    const videoGrid = document.getElementById('kord-video-grid');
+                    const callActions = document.getElementById('kord-header-call-actions');
+                    if (videoGrid) {
+                        videoGrid.style.display = 'flex';
+                        videoGrid.style.height = '180px';
+                        videoGrid.style.minHeight = '180px';
+                        videoGrid.innerHTML = '<div style="color:#94a3b8; text-align:center; width:100%; padding:40px; display:flex; flex-direction:column; align-items:center; gap:10px;"><span class="material-icons-round" style="font-size:48px; color:#c084fc;">voice_chat</span><span style="font-weight:600;">Lounge de Voz Ativo</span><span style="font-size:0.85rem;">Entre na call para conversar com o grupo</span></div>';
+                    }
+                    if (callActions) {
+                        callActions.style.display = 'flex';
+                        callActions.innerHTML = `<button onclick="startKordVoiceCall()" class="kord-join-call-btn" style="background:rgba(168, 85, 247, 0.1); color:#c084fc; border-color:rgba(168, 85, 247, 0.3);"><span class="material-icons-round">call</span> Entrar no Lounge</button>`;
+                    }
+                    // Show RTC controls area
+                    const rtcControls = document.getElementById('kord-webrtc-controls');
+                    if (rtcControls) rtcControls.style.display = 'none';
+                }
+            });
+            
+    // Enable Group Calls (hide if already in a call)
+            const callActions = document.getElementById('kord-header-call-actions');
+            if (callActions) {
+                if (typeof isCallActive !== 'undefined' && isCallActive) {
+                    callActions.style.display = 'none';
+                } else {
+                    callActions.style.display = 'flex';
+                    callActions.innerHTML = `<button onclick="startKordVoiceCall('${groupId}')" class="kord-join-call-btn" style="background:rgba(168, 85, 247, 0.1); color:#c084fc; border-color:rgba(168, 85, 247, 0.3);">
+                        <span class="material-icons-round">groups</span> Ligar (Grupo)
+                    </button>`;
+                }
+            }
+
+    const ref = firebase.database().ref(`direct_messages/${groupId}/messages`);
+    kordAttachChatListener(ref, chatList, 'dm');
 }
 
 function openAddGroupMemberModal(groupId) {
@@ -3659,13 +3510,6 @@ function deleteGroup(groupId) {
 
 function openDirectMessage(friendUid) {
     if (!currentUser) return;
-
-    // ALWAYS CLEANUP RTDB CHAT LISTENERS
-    kordCleanupActiveListeners();
-    if (typeof activePreviewRef !== 'undefined' && activePreviewRef) {
-        activePreviewRef.off();
-    }
-
     // Create a deterministic chat ID (sorted UIDs)
     const chatId = [currentUser.uid, friendUid].sort().join('_');
 
@@ -3686,17 +3530,9 @@ function openDirectMessage(friendUid) {
         // Format body for chat
         const chatWindow = document.getElementById('kord-chat-window');
         if (chatWindow) {
-            chatWindow.style.display = 'block';
             chatWindow.innerHTML = `<div id="chatMessages" style="display:flex; flex-direction:column; gap:10px; padding-bottom:20px;"></div>`;
         }
         const chatList = document.getElementById('chatMessages');
-
-        const videoGrid = document.getElementById('kord-video-grid');
-        const rtcControls = document.getElementById('kord-webrtc-controls');
-        const mainArea = document.getElementById('kord-main-area');
-        if (videoGrid) videoGrid.style.display = 'none';
-        if (rtcControls) rtcControls.style.display = 'none';
-        if (mainArea) mainArea.style.background = ''; // default
 
         const inputArea = document.getElementById('kord-input-area');
         if (inputArea) inputArea.style.display = 'block';
@@ -3706,17 +3542,17 @@ function openDirectMessage(friendUid) {
         if (chatInput) chatInput.setAttribute('data-dm-target', `direct_messages/${chatId}`);
 
         // Enable Private P2P Calls in DMs (hide if already in a call)
-        const callActions = document.getElementById('kord-header-call-actions');
-        if (callActions) {
-            if (typeof isCallActive !== 'undefined' && isCallActive) {
-                callActions.style.display = 'none';
-            } else {
-                callActions.style.display = 'flex';
-                callActions.innerHTML = `<button onclick="startKordVoiceCall()" class="kord-join-call-btn" style="background:rgba(34, 197, 94, 0.1); color:#22c55e; border-color:rgba(34, 197, 94, 0.3);">
-                    <span class="material-icons-round">call</span> Ligar (Privado)
-                </button>`;
-            }
-        }
+                const callActions = document.getElementById('kord-header-call-actions');
+                if (callActions) {
+                    if (typeof isCallActive !== 'undefined' && isCallActive) {
+                        callActions.style.display = 'none';
+                    } else {
+                        callActions.style.display = 'flex';
+                        callActions.innerHTML = `<button onclick="startKordVoiceCall()" class="kord-join-call-btn" style="background:rgba(34, 197, 94, 0.1); color:#22c55e; border-color:rgba(34, 197, 94, 0.3);">
+                            <span class="material-icons-round">call</span> Ligar (Privado)
+                        </button>`;
+                    }
+                }
 
         const ref = firebase.database().ref(`direct_messages/${chatId}/messages`);
         kordAttachChatListener(ref, chatList, 'dm');
@@ -3961,34 +3797,34 @@ function openKordTranslator() {
 
     const modal = document.createElement('div');
     modal.id = 'kordTranslatorModal';
-    modal.className = 'kord-modal-overlay';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.85); z-index:999998; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(8px); opacity:0; transition: opacity 0.3s ease;';
 
     modal.innerHTML = `
-        <div class="kord-translator-box" id="kordTransBox">
-            <div class="kord-translator-header">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="width:36px; height:36px; background:linear-gradient(135deg, #f59e0b, #fbbf24); border-radius:10px; display:flex; justify-content:center; align-items:center; flex-shrink:0;">
+        <div style="background:linear-gradient(145deg, #1e293b, #0f172a); border-radius:20px; width:550px; max-width:95%; border:1px solid rgba(255,255,255,0.1); box-shadow:0 25px 60px -12px rgba(0,0,0,0.8); overflow:hidden; transform:scale(0.95); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);" id="kordTransBox">
+            <div style="padding:20px 24px 0 24px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:36px; height:36px; background:linear-gradient(135deg, #f59e0b, #fbbf24); border-radius:10px; display:flex; justify-content:center; align-items:center;">
                         <span class="material-icons-round" style="font-size:20px; color:#fff;">translate</span>
                     </div>
-                    <h3 style="margin:0; color:#f8fafc; font-size:1.15rem; font-weight:700;">Tradutor Global</h3>
+                    <h3 style="margin:0; color:#f8fafc; font-size:1.1rem;">Tradutor Global</h3>
                 </div>
-                <div onclick="document.getElementById('kordTranslatorModal').remove()" style="cursor:pointer; color:#64748b; padding:6px; border-radius:8px; display:flex; align-items:center;" onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#f8fafc';" onmouseout="this.style.background='none'; this.style.color='#64748b';">
+                <div onclick="document.getElementById('kordTranslatorModal').remove()" style="cursor:pointer; color:#64748b; padding:4px; border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">
                     <span class="material-icons-round" style="font-size:20px;">close</span>
                 </div>
             </div>
-            <div class="kord-translator-body">
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
-                    <select id="kordTransSrc" class="kord-form-control" style="flex:1;">${srcOptions}</select>
-                    <button onclick="swapKordTransLangs()" style="background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); color:#a5b4fc; width:42px; height:42px; border-radius:10px; cursor:pointer; display:flex; justify-content:center; align-items:center; transition:all 0.2s; flex-shrink:0;" onmouseover="this.style.transform='rotate(180deg)'" onmouseout="this.style.transform='rotate(0)'">
+            <div style="padding:20px 24px 24px 24px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+                    <select id="kordTransSrc" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:#fff; font-size:0.9rem; outline:none;">${srcOptions}</select>
+                    <button onclick="swapKordTransLangs()" style="background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); color:#a5b4fc; width:40px; height:40px; border-radius:10px; cursor:pointer; display:flex; justify-content:center; align-items:center; transition:all 0.2s;" onmouseover="this.style.transform='rotate(180deg)'" onmouseout="this.style.transform='rotate(0)'">
                         <span class="material-icons-round" style="font-size:20px;">swap_horiz</span>
                     </button>
-                    <select id="kordTransTgt" class="kord-form-control" style="flex:1;">${tgtOptions}</select>
+                    <select id="kordTransTgt" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:#fff; font-size:0.9rem; outline:none;">${tgtOptions}</select>
                 </div>
-                <div style="display:flex; flex-direction:column; gap:16px;">
+                <div style="display:flex; flex-direction:column; gap:12px;">
                     <div style="position:relative;">
-                        <textarea id="kordTransInput" placeholder="Digite ou cole o texto para traduzir..." rows="4" class="kord-translator-textarea"></textarea>
-                        <div style="position:absolute; bottom:12px; right:12px; display:flex; gap:6px;">
-                            <span id="kordTransCharCount" style="color:#64748b; font-size:0.75rem; background:rgba(0,0,0,0.4); padding:2px 6px; border-radius:4px;">0/2000</span>
+                        <textarea id="kordTransInput" placeholder="Digite ou cole o texto para traduzir..." rows="4" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; color:#fff; font-size:0.95rem; outline:none; resize:none; font-family:inherit; transition:border-color 0.2s;" onfocus="this.style.borderColor='rgba(245,158,11,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'"></textarea>
+                        <div style="position:absolute; bottom:10px; right:10px; display:flex; gap:6px;">
+                            <span id="kordTransCharCount" style="color:#64748b; font-size:0.7rem;">0/2000</span>
                         </div>
                     </div>
                     <button onclick="executeKordTranslation()" id="kordTransBtn" style="background:linear-gradient(135deg, #f59e0b, #d97706); border:none; color:#fff; padding:12px; border-radius:10px; font-weight:700; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">
@@ -4048,10 +3884,40 @@ async function executeKordTranslation() {
     btn.innerHTML = '<span class="material-icons-round rotating" style="font-size:20px;">sync</span> Traduzindo...';
     btn.disabled = true;
 
+    const apiKey = localStorage.getItem('groqApiKey') || localStorage.getItem('groq_api_key');
+    if (!apiKey) {
+        btn.innerHTML = '<span class="material-icons-round" style="font-size:20px;">translate</span> Traduzir';
+        btn.disabled = false;
+        return showKordAlert("API Key Pendente", "Adicione a sua Groq API Key nas opções do Kord AI para habilitar as traduções.", "vpn_key", "#f59e0b");
+    }
+
     try {
         const systemPrompt = `You are a professional translator. Translate the following text ${srcLang === 'auto' ? '(auto-detect source language)' : 'from ' + srcName} to ${tgtName}. Return ONLY the translated text, nothing else. No explanations, no quotes, no formatting.`;
 
-        const translated = await callKordAI(systemPrompt, input, { groqModel: 'llama-3.3-70b-versatile' });
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + apiKey
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: input }
+                ],
+                temperature: 0.2,
+                max_tokens: 2048
+            })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error?.message || `HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        const translated = data.choices[0].message.content.trim();
 
         const output = document.getElementById('kordTransOutput');
         output.style.display = 'block';
@@ -4067,12 +3933,12 @@ async function executeKordTranslation() {
         console.error('[Translator Error]:', e);
         let msg = e.message;
         if (msg.includes('rate limit')) msg = 'Limite de requisições excedido. Aguarde.';
-        if (msg.includes('Invalid') || msg.includes('Chave de API')) msg = 'Sua API Key é inválida, expirou ou não foi configurada.';
+        if (msg.includes('Invalid')) msg = 'Sua API Key é inválida ou expirou.';
         showKordAlert("Falha na Tradução", msg, "error", "#ef4444");
-    } finally {
-        btn.innerHTML = '<span class="material-icons-round" style="font-size:20px;">translate</span> Traduzir';
-        btn.disabled = false;
     }
+
+    btn.innerHTML = '<span class="material-icons-round" style="font-size:20px;">translate</span> Traduzir';
+    btn.disabled = false;
 }
 
 function copyTranslation() {
@@ -4275,3 +4141,41 @@ function sendKordPayment(targetUid, targetName, targetPaypalEmail) {
         closeKordModal();
     }
 }
+
+// ==========================================
+// CALL INVITE LINK — Copy direct call link
+// ==========================================
+function copyCallInviteLink() {
+    const callUrl = window.location.origin + window.location.pathname + '#call';
+    navigator.clipboard.writeText(callUrl).then(() => {
+        showKordAlert("Convite Copiado!", "Compartilhe este link para que outras pessoas entrem na mesma call:<br><br><b style='color:#fff;'>" + callUrl + "</b>", "link", "#6366f1");
+    }).catch(() => {
+        showKordAlert("Link da Call", "Acesse este link para entrar na call:<br><br><b style='color:#fff;'>" + callUrl + "</b>", "link", "#6366f1");
+    });
+}
+
+// ==========================================
+// AUTO-JOIN CALL via URL hash (#call)
+// ==========================================
+(function() {
+    if (window.location.hash === '#call') {
+        // Wait for Firebase auth and Kord init
+        const checkInterval = setInterval(() => {
+            if (typeof currentUser !== 'undefined' && currentUser && typeof startKordVoiceCall === 'function') {
+                clearInterval(checkInterval);
+                // Switch to Kord view first
+                if (typeof switchView === 'function') switchView('kord');
+                // Small delay to let DOM render
+                setTimeout(() => {
+                    if (typeof startKordVoiceCall === 'function' && !window._callAutoStarted) {
+                        window._callAutoStarted = true;
+                        startKordVoiceCall();
+                        console.log('[AutoCall] Entrando na call via #call hash');
+                    }
+                }, 1500);
+            }
+        }, 500);
+        // Safety timeout
+        setTimeout(() => clearInterval(checkInterval), 30000);
+    }
+})();

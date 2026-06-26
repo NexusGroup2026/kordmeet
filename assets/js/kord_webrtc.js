@@ -80,7 +80,9 @@ async function startKordVoiceCall() {
 
     addLocalVideo(localStream);
 
-    const roomId = `${currentKordServer}_${currentKordChannel}`.replace(/:/g, '_');
+    // CRITICAL FIX: Always use 'home_voice_lounge' as room ID
+    // so everyone joins the SAME call regardless of their current server/channel
+    const roomId = 'home_voice_lounge';
     roomRef = firebase.database().ref(`webrtc_rooms/${roomId}`);
     presenceRef = roomRef.child(`participants/${currentUser.uid}`);
     audioChunksRef = roomRef.child(`audio_chunks/${currentUser.uid}`);
@@ -875,7 +877,8 @@ function updateCallMembersList() {
 
         // Background refresh of member cache from Firebase (async, non-blocking)
         Object.keys(participants).forEach(uid => {
-            if (!_memberCache[uid]) {
+            // Always refresh cache with latest data (remove stale guard)
+            if (true) {
                 firebase.database().ref(`users/${uid}`).once('value').then(uSnap => {
                     if (uSnap.exists()) {
                         const d = uSnap.val();
@@ -1590,7 +1593,7 @@ function previewKordVoiceChannel(serverId, channelId, channelData) {
         activePreviewRef.off();
     }
 
-    const roomId = `${serverId}_${channelId}`.replace(/:/g, '_');
+    const roomId = `${serverId}_${channelId}`;
     activePreviewRef = firebase.database().ref(`webrtc_rooms/${roomId}/participants`);
 
     activePreviewRef.on('value', async (snap) => {
@@ -1606,70 +1609,63 @@ function previewKordVoiceChannel(serverId, channelId, channelData) {
         }
 
         const participants = snap.val();
-        const uids = Object.keys(participants);
+        grid.innerHTML = '';
         const now = Date.now();
         const STALE_THRESHOLD = 30000; // 30 seconds
 
-        // Resolve all user profile fetches in parallel to avoid async loops race-conditions
-        const promises = uids.map(async (uid) => {
+        // Collect all valid UIDs first
+        const validUids = [];
+        for (const uid in participants) {
             const data = participants[uid];
             const isStale = !data.lastSeen || (now - data.lastSeen) > STALE_THRESHOLD;
             if (isStale) {
-                firebase.database().ref(`webrtc_rooms/${roomId}/participants/${uid}`).remove();
-                return null;
+                firebase.database().ref(`webrtc_rooms/${serverId}_${channelId}/participants/${uid}`).remove();
+                continue;
             }
-            const userSnap = await firebase.database().ref(`users/${uid}`).once('value');
-            return {
-                uid: uid,
-                participantData: data,
-                userData: userSnap.exists() ? userSnap.val() : null
-            };
-        });
+            validUids.push(uid);
+        }
 
-        const results = await Promise.all(promises);
+        // Fetch all user profiles in parallel (Promise.all — no race conditions)
+        const userSnaps = await Promise.all(
+            validUids.map(uid => firebase.database().ref(`users/${uid}`).once('value'))
+        );
 
-        // Re-verify that the grid still exists in DOM after async resolution
-        const currentGrid = document.getElementById('kord-voice-preview-grid');
-        if (!currentGrid) return;
+        // Build grid in one pass
+        userSnaps.forEach((userSnap, idx) => {
+            const uid = validUids[idx];
+            if (!userSnap.exists()) return;
+            const uData = userSnap.val();
+            const data = participants[uid];
+                const dName = uData.displayName || (uData.email ? uData.email.split('@')[0] : 'Usuário');
+                const photoURL = uData.photoURL;
+                let tColor = uData.themeColor || '#6366f1';
+                if (tColor === 'transparent') tColor = '#6366f1';
+                const initial = dName.charAt(0).toUpperCase();
 
-        let html = '';
-        results.forEach(res => {
-            if (!res || !res.userData) return;
-            const { uid, participantData: data, userData: uData } = res;
-            const dName = uData.displayName || (uData.email ? uData.email.split('@')[0] : 'Usuário');
-            const photoURL = uData.photoURL;
-            let tColor = uData.themeColor || '#6366f1';
-            if (tColor === 'transparent') tColor = '#6366f1';
-            const initial = dName.charAt(0).toUpperCase();
+                const avatarHtml = photoURL
+                    ? `<img src="${photoURL}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" onerror="this.outerHTML='${initial}'" />`
+                    : initial;
 
-            const avatarHtml = photoURL
-                ? `<img src="${photoURL}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" onerror="this.outerHTML='${initial}'" />`
-                : initial;
+                let stateIconHtml = '';
+                if (data.deafened) {
+                    stateIconHtml = `<div class="kord-preview-state kord-preview-state--muted"><span class="material-icons-round" style="font-size:14px; color:white;">headset_off</span></div>`;
+                } else if (data.muted !== false) {
+                    stateIconHtml = `<div class="kord-preview-state kord-preview-state--muted"><span class="material-icons-round" style="font-size:14px; color:white;">mic_off</span></div>`;
+                } else {
+                    stateIconHtml = `<div class="kord-preview-state kord-preview-state--active"><span class="material-icons-round" style="font-size:14px; color:white;">mic</span></div>`;
+                }
 
-            let stateIconHtml = '';
-            if (data.deafened) {
-                stateIconHtml = `<div class="kord-preview-state kord-preview-state--muted"><span class="material-icons-round" style="font-size:14px; color:white;">headset_off</span></div>`;
-            } else if (data.muted !== false) {
-                stateIconHtml = `<div class="kord-preview-state kord-preview-state--muted"><span class="material-icons-round" style="font-size:14px; color:white;">mic_off</span></div>`;
-            } else {
-                stateIconHtml = `<div class="kord-preview-state kord-preview-state--active"><span class="material-icons-round" style="font-size:14px; color:white;">mic</span></div>`;
-            }
-
-            html += `
-                <div class="kord-preview-member">
-                    <div class="kord-preview-member-avatar-wrap">
-                        <div class="kord-preview-member-avatar" style="background:${tColor};">${avatarHtml}</div>
-                        ${stateIconHtml}
+                const cardHtml = `
+                    <div class="kord-preview-member">
+                        <div class="kord-preview-member-avatar-wrap">
+                            <div class="kord-preview-member-avatar" style="background:${tColor};">${avatarHtml}</div>
+                            ${stateIconHtml}
+                        </div>
+                        <span class="kord-preview-member-name">${dName}</span>
                     </div>
-                    <span class="kord-preview-member-name">${dName}</span>
-                </div>
-            `;
-        });
-
-        if (html === '') {
-            currentGrid.innerHTML = `<div class="kord-voice-empty">A sala está vazia. Seja o primeiro a entrar!</div>`;
-        } else {
-            currentGrid.innerHTML = html;
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHtml);
+            }
         }
     });
 }
