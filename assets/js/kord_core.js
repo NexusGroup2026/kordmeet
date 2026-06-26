@@ -1297,7 +1297,7 @@ function kordRenderMessage(m, k, container, type = 'chat', skipScroll = false) {
 
         item.innerHTML = `
             ${actionsHtml}
-            <div class="${authorDeco !== 'none' ? 'dec-' + authorDeco : ''}" style="width:40px; height:40px; border-radius:50%; background:${authorColor}; display:flex; justify-content:center; align-items:center; color:#fff; font-weight:bold; font-size:16px; flex-shrink:0; overflow:hidden;">
+            <div class="${authorDeco !== 'none' ? 'dec-' + authorDeco : ''}" style="position:relative; width:40px; height:40px; border-radius:50%; background:${authorColor}; display:flex; justify-content:center; align-items:center; color:#fff; font-weight:bold; font-size:16px; flex-shrink:0; overflow:visible;">
                 ${avatarInnerHtml}
             </div>
             <div style="flex:1;">
@@ -1353,15 +1353,10 @@ function kordAttachChatListener(ref, container, type = 'chat') {
         // Skip if already rendered with this exact key
         if (container.querySelector(`[data-msg-id="${msgKey}"]`)) return;
 
-        // Remove any optimistic temp message that this real message replaces
+        // Remove ALL optimistic temp messages — dedup by text is unreliable
+        // The real message from Firebase is the source of truth
         const tempEls = container.querySelectorAll('[data-msg-id^="temp_"]');
-        tempEls.forEach(el => {
-            const payload = childSnap.val();
-            const elText = el.querySelector('.kord-msg-text')?.textContent || '';
-            if (payload && payload.text && elText.includes(payload.text.substring(0, 30))) {
-                el.remove();
-            }
-        });
+        tempEls.forEach(el => el.remove());
 
         kordRenderMessage(childSnap.val(), msgKey, container, type);
     });
@@ -4034,3 +4029,41 @@ function sendKordPayment(targetUid, targetName, targetPaypalEmail) {
         closeKordModal();
     }
 }
+
+// ==========================================
+// CALL INVITE LINK — Copy direct call link
+// ==========================================
+function copyCallInviteLink() {
+    const callUrl = window.location.origin + window.location.pathname + '#call';
+    navigator.clipboard.writeText(callUrl).then(() => {
+        showKordAlert("Convite Copiado!", "Compartilhe este link para que outras pessoas entrem na mesma call:<br><br><b style='color:#fff;'>" + callUrl + "</b>", "link", "#6366f1");
+    }).catch(() => {
+        showKordAlert("Link da Call", "Acesse este link para entrar na call:<br><br><b style='color:#fff;'>" + callUrl + "</b>", "link", "#6366f1");
+    });
+}
+
+// ==========================================
+// AUTO-JOIN CALL via URL hash (#call)
+// ==========================================
+(function() {
+    if (window.location.hash === '#call') {
+        // Wait for Firebase auth and Kord init
+        const checkInterval = setInterval(() => {
+            if (typeof currentUser !== 'undefined' && currentUser && typeof startKordVoiceCall === 'function') {
+                clearInterval(checkInterval);
+                // Switch to Kord view first
+                if (typeof switchView === 'function') switchView('kord');
+                // Small delay to let DOM render
+                setTimeout(() => {
+                    if (typeof startKordVoiceCall === 'function' && !window._callAutoStarted) {
+                        window._callAutoStarted = true;
+                        startKordVoiceCall();
+                        console.log('[AutoCall] Entrando na call via #call hash');
+                    }
+                }, 1500);
+            }
+        }, 500);
+        // Safety timeout
+        setTimeout(() => clearInterval(checkInterval), 30000);
+    }
+})();

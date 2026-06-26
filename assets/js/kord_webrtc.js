@@ -80,7 +80,9 @@ async function startKordVoiceCall() {
 
     addLocalVideo(localStream);
 
-    const roomId = `${currentKordServer}_${currentKordChannel}`;
+    // CRITICAL FIX: Always use 'home_voice_lounge' as room ID
+    // so everyone joins the SAME call regardless of their current server/channel
+    const roomId = 'home_voice_lounge';
     roomRef = firebase.database().ref(`webrtc_rooms/${roomId}`);
     presenceRef = roomRef.child(`participants/${currentUser.uid}`);
     audioChunksRef = roomRef.child(`audio_chunks/${currentUser.uid}`);
@@ -875,7 +877,8 @@ function updateCallMembersList() {
 
         // Background refresh of member cache from Firebase (async, non-blocking)
         Object.keys(participants).forEach(uid => {
-            if (!_memberCache[uid]) {
+            // Always refresh cache with latest data (remove stale guard)
+            if (true) {
                 firebase.database().ref(`users/${uid}`).once('value').then(uSnap => {
                     if (uSnap.exists()) {
                         const d = uSnap.val();
