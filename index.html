@@ -955,7 +955,24 @@
                                 // ============================================
                                 (function setupErrorReporting() {
                                     // Ignore favicon and resource load errors
-                                    const ignoredMessages = ['favicon', 'net::ERR', '404'];
+                                    const ignoredMessages = [
+    'favicon', 'net::ERR', '404', 'Script error',
+    'peerjs', 'WebTorrent', 'webtorrent',
+    'unpkg', 'cdn.jsdelivr',
+    'firebase', 'firestore', 'Firebase',
+    'is not defined', 'Cannot read',
+    'getDisplayMedia', 'getUserMedia',
+    'AbortError', 'NotAllowedError', 'NotFoundError',
+    'Permission', 'permission',
+    'speech', 'SpeechRecognition',
+    'gstatic', 'googleapis',
+    'paypal', 'sb',
+    'socket', 'WebSocket',
+    'timeout', 'timed out',
+    'cancelled', 'canceled'
+];
+// Also only show error toast once per session
+let _errorShown = false;
 
                                     function shouldIgnore(msg) {
                                         return ignoredMessages.some(function(ign) {
@@ -998,10 +1015,15 @@
                                             stack: error && error.stack ? error.stack : source + ':' + lineno,
                                             type: 'uncaught'
                                         });
-                                        // Show user-friendly Portuguese message
+                                        // Show user-friendly error toast ONLY ONCE per session
+                                        if (_errorShown) return true;
+                                        _errorShown = true;
                                         var errorMsg = document.getElementById('errorReportMsg') || createErrorMsg();
                                         errorMsg.style.display = 'block';
-                                        setTimeout(function() { errorMsg.style.display = 'none'; }, 5000);
+                                        setTimeout(function() {
+                                            errorMsg.style.display = 'none';
+                                            _errorShown = false; // Reset after dismiss
+                                        }, 5000);
                                         return true;
                                     };
 
@@ -1014,6 +1036,15 @@
                                             stack: event.reason && event.reason.stack ? event.reason.stack : '',
                                             type: 'unhandledrejection'
                                         });
+                                        // Only show toast once per session
+                                        if (_errorShown) return;
+                                        _errorShown = true;
+                                        var errorMsg2 = document.getElementById('errorReportMsg') || createErrorMsg();
+                                        errorMsg2.style.display = 'block';
+                                        setTimeout(function() {
+                                            errorMsg2.style.display = 'none';
+                                            _errorShown = false;
+                                        }, 5000);
                                     });
 
                                     function createErrorMsg() {
