@@ -598,13 +598,20 @@ function initApp() {
         };
 
         const loadLocalFallback = () => {
-            console.log("[Database] Carregando ai_database.json local...");
+            console.log("[Database] Carregando ai_database.json local (compacto)...");
             fetch('ai_database.json')
                 .then(r => r.json())
                 .then(data => {
                     const rawList = Array.isArray(data) ? data : Object.values(data);
-                    allItems = rawList.filter(item => item !== null && typeof item === 'object' && item.name);
-                    console.log("[Database] " + allItems.length + " IAs carregadas do arquivo local.");
+                    // Descompacta formato reduzido: n=name, u=url, c=category, d=description, t=tags
+                    allItems = rawList.filter(item => item !== null && typeof item === 'object').map(item => ({
+                        name: item.n || item.name || '',
+                        url: item.u || item.url || '',
+                        category: item.c || item.category || '',
+                        description: item.d || item.description || '',
+                        tags: item.t || item.tags || []
+                    }));
+                    console.log("[Database] " + allItems.length + " IAs carregadas do arquivo local (compacto).");
                     displayedCount = 0;
                     grid.innerHTML = '';
                     renderBatch();
