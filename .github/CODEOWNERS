@@ -1,0 +1,12 @@
+# Kord Meet — Code Owners
+# Apenas estes usuários podem aprovar PRs e merge na main
+# Todos os arquivos exigem review de um code owner
+
+* @NexusGroup2026 @moisesvvanti-dev @mangomedia-saas
+
+# Regras de segurança — apenas o owner principal
+/firebase_rules.json @NexusGroup2026
+/.github/ @NexusGroup2026
+
+# Documentação
+/README.md @NexusGroup2026 @moisesvvanti-dev @mangomedia-saas

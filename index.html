@@ -112,8 +112,6 @@
                         class="material-icons-round nav-icon">volunteer_activism</span> Apoiar Projeto</a>
                 <a href="#" class="nav-item" onclick="switchView('changelog'); return false;"><span
                                         class="material-icons-round nav-icon">history</span> Changelog</a>
-                                <a href="#" class="nav-item" onclick="switchView('ainews'); return false;"><span
-                                        class="material-icons-round nav-icon">newspaper</span> AI News</a>
                                 <a href="#" class="nav-item" onclick="switchView('kord'); return false;"
                     style="color: #6366f1; font-weight: 600;"><span
                         class="material-icons-round nav-icon">voice_chat</span> Kord (Meet)</a>
@@ -708,15 +706,6 @@
                     </div>
                 </div>
 
-                                <!-- VIEW: AI NEWS (Auto-Updating AI News Feed) -->
-                                                <div id="view-ainews" style="display:none;" class="ai-news-view">
-                                                    <div class="ai-news-header-bar">
-                                                        <h2><span class="material-icons-round">psychology</span> AI News</h2>
-                                                        <p>Últimas notícias de Inteligência Artificial - Atualizado automaticamente</p>
-                                                    </div>
-                                                    <div id="kord-ai-news-grid" class="ai-news-content"></div>
-                                                </div>
-
                                                 <!-- VIEW: KORD (Discord/Meet Clone) -->
                                                 <div id="view-kord" class="kord-view" style="display:none;">
                                                     <div class="kord-layout">
@@ -1077,7 +1066,6 @@ let _errorShown = false;
         <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
         <script src="assets/js/kord_webrtc.js"></script>
         <script src="assets/js/kord_core.js"></script>
-                <script src="assets/js/kord_ai_news.js"></script>
                 <script src="assets/js/kord_nvidia_ai.js"></script>
         <script src="assets/js/kord_explorer.js"></script>
 

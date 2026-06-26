@@ -192,10 +192,6 @@ window._switchViewComplete = function(viewName) {
             loadAdminView();
         }
 
-        // Load AI News when ainews view is opened
-        if (viewName === 'ainews' && typeof AINewsManager !== 'undefined') {
-            AINewsManager.renderNews('kord-ai-news-grid');
-        }
     };
 
 window.scrollToGrid = function () {
