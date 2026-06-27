@@ -11,7 +11,7 @@
           ".validate": "newData.isString() && newData.val().matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/)"
         },
         "displayName": {
-          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60 && !newData.val().matches(/[<>'\"\\\\]/)"
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60 && !newData.val().matches(/[<>'\"]/)"
         },
         "nickname": {
           ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 30 && newData.val().matches(/^[a-zA-Z0-9_]+$/)"
@@ -305,7 +305,7 @@
         "info": {
           ".validate": "newData.hasChildren(['name', 'owner', 'members']) && newData.child('name').isString() && newData.child('name').val().length < 100",
           "name": {
-            ".validate": "newData.isString() && !newData.val().matches(/[<>'\"/\\\\]/)"
+            ".validate": "newData.isString() && !newData.val().matches(/[<>'\"]/)"
           },
           "owner": {
             ".validate": "newData.isString()"
