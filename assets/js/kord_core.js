@@ -16,9 +16,10 @@ function kordCleanupActiveListeners() {
 // KORD SECURITY & ANTI-INSPECT [STRICT]
 // ==========================================
 function initKordSecurity() {
-    // Disable Right-Click (Context Menu)
+    // Disable Right-Click (Context Menu) on INPUT fields only — allow everywhere else
     document.addEventListener('contextmenu', e => {
-        if (!e.target.closest('.message-item') && !e.target.closest('.kord-server-item')) {
+        // Always allow native context menu except on input/textarea fields
+        if (e.target.closest('input, textarea, select, [contenteditable="true"]')) {
             e.preventDefault();
         }
     });

@@ -607,12 +607,15 @@ function initApp() {
         }
 
     // FIREBASE DATABASE FETCH (Real-time update) with local JSON fallback
-    const fetchFromFirebase = () => {
-        const loadFromFirebase = () => {
-            try {
-                if (typeof firebase === 'undefined' || !firebase.apps.length) {
-                    throw new Error("Firebase not ready");
-                }
+        const fetchFromFirebase = () => {
+            const grid = document.getElementById('aiGrid');
+            if (!grid) return; // Not on explore page
+
+            const loadFromFirebase = () => {
+                try {
+                    if (typeof firebase === 'undefined' || !firebase.apps.length) {
+                        throw new Error("Firebase not ready");
+                    }
 
                 const dbRef = firebase.database().ref('tools');
                 let firebaseLoaded = false;
