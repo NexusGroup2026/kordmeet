@@ -1620,7 +1620,6 @@ async function removeInvalidKey(key) {
     console.warn("Key Exaurida/Invalida removida do Pool:", keyHash);
 }
 
-async 
 // ==========================================
 // KORD AI UNIFIED — OpenAI, Gemini, Groq
 // ==========================================

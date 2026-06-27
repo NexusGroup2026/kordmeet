@@ -541,26 +541,28 @@
             });
             
             // Protect location
-            const safeLocation = {
-                protocol: 'https:',
-                host: 'kord.gg',
-                hostname: 'kord.gg',
-                port: '',
-                pathname: '/',
-                search: '',
-                hash: '',
-                href: 'https://kord.gg/',
-                origin: 'https://kord.gg',
-                toString: () => 'https://kord.gg/'
-            };
-            
-            Object.defineProperty(window, 'location', {
-                get: () => safeLocation
-            });
-        },
-        
-        protectPrototypes() {
-            // Protect Object
+                        const safeLocation = {
+                            protocol: 'https:',
+                            host: 'kord.gg',
+                            hostname: 'kord.gg',
+                            port: '',
+                            pathname: '/',
+                            search: '',
+                            hash: '',
+                            href: 'https://kord.gg/',
+                            origin: 'https://kord.gg',
+                            toString: () => 'https://kord.gg/'
+                        };
+
+                        try {
+                            Object.defineProperty(window, 'location', {
+                                get: () => safeLocation
+                            });
+                        } catch(e) { /* location is non-configurable */ }
+                    },
+
+                    protectPrototypes() {
+                        // Protect Object
             const originalObjectKeys = Object.keys;
             Object.keys = function(obj) {
                 if (obj && typeof obj === 'object') {
