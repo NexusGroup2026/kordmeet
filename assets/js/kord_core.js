@@ -998,16 +998,17 @@ function openCreateKordServer() {
         inputField.parentNode.insertBefore(photoRow, inputField);
 
         document.getElementById('srv-photo-input').onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            if (file.size === 0)
-            reader.onload = (ev) => {
-                _pendingServerPhoto = ev.target.result;
-                document.getElementById('srv-photo-preview').innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
-                document.getElementById('srv-photo-preview').style.border = '2px solid #10b981';
-            };
-            reader.readAsDataURL(file);
-        };
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    if (file.size === 0) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        _pendingServerPhoto = ev.target.result;
+                        document.getElementById('srv-photo-preview').innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />`;
+                        document.getElementById('srv-photo-preview').style.border = '2px solid #10b981';
+                    };
+                    reader.readAsDataURL(file);
+                };
     }, 100);
 }
 
@@ -1713,7 +1714,7 @@ async function callKordAI(prompt, options = {}) {
 // ==========================================
 // MODERATION — Usa callKordAI
 // ==========================================
-function checkSecurityMessageAI(text) {
+async function checkSecurityMessageAI(text) {
     const systemKey = getSystemGroqKey();
     if (!systemKey) return false;
 
@@ -3302,12 +3303,12 @@ function openCreateKordGroupModal() {
             const members = {};
             members[currentUser.uid] = true;
 
-            const channelType = channelType || 'text';
-            const groupData = {
-                name: groupName,
-                owner: currentUser.uid,
-                isGroup: true,
-                channelType: channelType,
+            const ct = channelType || 'text';
+                        const groupData = {
+                            name: groupName,
+                            owner: currentUser.uid,
+                            isGroup: true,
+                            channelType: ct,
                 members: members,
                 createdAt: Date.now()
             };

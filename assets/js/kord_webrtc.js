@@ -1636,36 +1636,40 @@ function previewKordVoiceChannel(serverId, channelId, channelData) {
             if (!userSnap.exists()) return;
             const uData = userSnap.val();
             const data = participants[uid];
-                const dName = uData.displayName || (uData.email ? uData.email.split('@')[0] : 'Usuário');
-                const photoURL = uData.photoURL;
-                let tColor = uData.themeColor || '#6366f1';
-                if (tColor === 'transparent') tColor = '#6366f1';
-                const initial = dName.charAt(0).toUpperCase();
+            const dName = uData.displayName || (uData.email ? uData.email.split('@')[0] : 'Usuario');
+            const photoURL = uData.photoURL;
+            let tColor = uData.themeColor || '#6366f1';
+            if (tColor === 'transparent') tColor = '#6366f1';
+            const initial = dName.charAt(0).toUpperCase();
 
-                const avatarHtml = photoURL
-                    ? `<img src="${photoURL}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" onerror="this.outerHTML='${initial}'" />`
-                    : initial;
+            const safeName = (dName || '').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
+            const safeColor = (tColor || '#6366f1').replace(/"/g, '"');
+            const safePhoto = (photoURL || '').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
+            const safeInit = (initial || '').replace(/</g, '<').replace(/>/g, '>');
 
-                let stateIconHtml = '';
-                if (data.deafened) {
-                    stateIconHtml = `<div class="kord-preview-state kord-preview-state--muted"><span class="material-icons-round" style="font-size:14px; color:white;">headset_off</span></div>`;
-                } else if (data.muted !== false) {
-                    stateIconHtml = `<div class="kord-preview-state kord-preview-state--muted"><span class="material-icons-round" style="font-size:14px; color:white;">mic_off</span></div>`;
-                } else {
-                    stateIconHtml = `<div class="kord-preview-state kord-preview-state--active"><span class="material-icons-round" style="font-size:14px; color:white;">mic</span></div>`;
-                }
+            const avatarHtml = safePhoto
+                ? `<img src="${safePhoto}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" onerror="this.style.display='none'" />`
+                : safeInit;
 
-                const cardHtml = `
-                    <div class="kord-preview-member">
-                        <div class="kord-preview-member-avatar-wrap">
-                            <div class="kord-preview-member-avatar" style="background:${tColor};">${avatarHtml}</div>
-                            ${stateIconHtml}
-                        </div>
-                        <span class="kord-preview-member-name">${dName}</span>
-                    </div>
-                `;
-                grid.insertAdjacentHTML('beforeend', cardHtml);
+            let stateIconHtml = '';
+            if (data.deafened) {
+                stateIconHtml = `<div class="kord-preview-state kord-preview-state--muted"><span class="material-icons-round" style="font-size:14px; color:white;">headset_off</span></div>`;
+            } else if (data.muted !== false) {
+                stateIconHtml = `<div class="kord-preview-state kord-preview-state--muted"><span class="material-icons-round" style="font-size:14px; color:white;">mic_off</span></div>`;
+            } else {
+                stateIconHtml = `<div class="kord-preview-state kord-preview-state--active"><span class="material-icons-round" style="font-size:14px; color:white;">mic</span></div>`;
             }
-        }
+
+            const cardHtml = `
+                <div class="kord-preview-member">
+                    <div class="kord-preview-member-avatar-wrap">
+                        <div class="kord-preview-member-avatar" style="background:${safeColor};">${avatarHtml}</div>
+                        ${stateIconHtml}
+                    </div>
+                    <span class="kord-preview-member-name">${safeName}</span>
+                </div>
+            `;
+            grid.insertAdjacentHTML('beforeend', cardHtml);
+        });
     });
 }
