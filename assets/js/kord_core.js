@@ -1290,17 +1290,17 @@ function kordRenderMessage(m, k, container, type = 'chat', skipScroll = false) {
         });
     }
 
-    // Detect if we should append to last block
-    const lastBlock = container.lastElementChild;
-    const isSameAuthor = lastBlock && lastBlock.getAttribute('data-author-id') === m.uid && !m.replyTo;
-
-    if (!isSameAuthor || isForum) {
+    // ALWAYS render each message as its own block (prevents overlap bug when
+        // same user sends consecutive messages — the append-to-bodyContent approach
+        // caused vertical stacking issues with flex align-items:center).
+        // Grouping still works visually: consecutive same-author messages appear
+        // one after another, each with avatar (Discord-style grouping is a later improvement).
         const item = document.createElement('div');
         item.className = 'message-item';
         item.setAttribute('data-author-id', m.uid || '');
         item.setAttribute('data-msg-id', k);
         item.setAttribute('oncontextmenu', `return showKordContextMenu(event, '${k}', '${m.uid || ''}', '${(m.author || '').replace(/'/g, "\\'")}', '${authorColor}')`);
-        item.style.cssText = `margin-top:20px; display:flex; gap:12px; align-items:flex-start; position:relative;`;
+        item.style.cssText = `margin-top:16px; display:flex; gap:12px; align-items:flex-start; position:relative;`;
         if (isForum) item.style.borderLeft = '3px solid #f59e0b';
 
         item.innerHTML = `
@@ -1313,30 +1313,11 @@ function kordRenderMessage(m, k, container, type = 'chat', skipScroll = false) {
                     <span style="font-weight:600; font-size:15px; color:${authorColor};">${m.author}</span>
                     <small style="color:#64748b; font-size:0.75rem;">${dateStr}</small>
                 </div>
-                <div class="kord-msg-text" style="margin-top:4px; color:#f8fafc;">${formatKordMessage(m.text, m.replyTo)} ${m.edited ? '<small style="color:#64748b; font-size:0.7rem;">(editado)</small>' : ''}</div>
+                <div class="kord-msg-text" style="margin-top:4px; color:#f8fafc; line-height:1.5;">${formatKordMessage(m.text, m.replyTo)} ${m.edited ? '<small style="color:#64748b; font-size:0.7rem;">(editado)</small>' : ''}</div>
                 ${mediaHtml}
             </div>
         `;
         container.appendChild(item);
-    } else {
-        const bodyContent = lastBlock.children[1];
-        const subItem = document.createElement('div');
-        subItem.className = 'message-item'; // Reuse class for context menu selector visibility
-        subItem.setAttribute('data-msg-id', k);
-        subItem.setAttribute('oncontextmenu', `return showKordContextMenu(event, '${k}', '${m.uid || ''}', '${(m.author || '').replace(/'/g, "\\'")}', '${authorColor}')`);
-        subItem.style.cssText = `margin-top:4px; color:#f8fafc; line-height:1.5; display:flex; align-items:center; gap:8px; position:relative;`;
-        subItem.innerHTML = `
-            ${actionsHtml}
-            <span>${formatKordMessage(m.text, m.replyTo)} ${m.edited ? '<small style="color:#64748b; font-size:0.7rem;">(editado)</small>' : ''}</span>
-            <small style="color:#4752c4; font-size:0.65rem; opacity:0; transition:opacity 0.2s;" class="msg-time-small">${dateStr}</small>
-        `;
-        bodyContent.appendChild(subItem);
-        if (mediaHtml) {
-            const mediaDiv = document.createElement('div');
-            mediaDiv.innerHTML = mediaHtml;
-            bodyContent.appendChild(mediaDiv);
-        }
-    }
 
     if (!skipScroll) {
         const scrollArea = document.getElementById('kord-chat-window');

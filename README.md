@@ -32,3 +32,17 @@ P2P: WebTorrent
 ## GitHub Pages
 
 https://nexusgroup2026.github.io/kordmeet/
+
+## Python Script Execution (Windows CMD)
+
+To run Python scripts directly without typing `python` first in CMD:
+
+1. Double-click `add_python_path.bat` or run: `cmd /c C:\xampp\htdocs\add_python_path.bat`
+2. Close the Command Prompt window
+3. Open a NEW Command Prompt
+4. Run scripts like: `myscript.py` (no need for `python myscript.py`)
+
+The batch file configures:
+- Adds `.PY` to PATHEXT (so CMD recognizes .py as executable)
+- Adds Python to PATH if not present
+- Associates .py files with the Python interpreter

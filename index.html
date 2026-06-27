@@ -1000,21 +1000,29 @@
                                 (function setupErrorReporting() {
                                     // Ignore favicon and resource load errors
                                     const ignoredMessages = [
-    'favicon', 'net::ERR', '404', 'Script error',
-    'peerjs', 'WebTorrent', 'webtorrent',
-    'unpkg', 'cdn.jsdelivr',
-    'firebase', 'firestore', 'Firebase',
-    'is not defined', 'Cannot read',
-    'getDisplayMedia', 'getUserMedia',
-    'AbortError', 'NotAllowedError', 'NotFoundError',
-    'Permission', 'permission',
-    'speech', 'SpeechRecognition',
-    'gstatic', 'googleapis',
-    'paypal', 'sb',
-    'socket', 'WebSocket',
-    'timeout', 'timed out',
-    'cancelled', 'canceled'
-];
+                                        'favicon', 'net::ERR', '404', 'Script error.', 'Script error',
+                                        'peerjs', 'WebTorrent', 'webtorrent',
+                                        'unpkg', 'cdn.jsdelivr',
+                                        'firebase', 'firestore', 'Firebase',
+                                        'is not defined', 'Cannot read',
+                                        'getDisplayMedia', 'getUserMedia',
+                                        'AbortError', 'NotAllowedError', 'NotFoundError',
+                                        'Permission', 'permission',
+                                        'speech', 'SpeechRecognition',
+                                        'gstatic', 'googleapis',
+                                        'paypal', 'sb',
+                                        'socket', 'WebSocket',
+                                        'timeout', 'timed out',
+                                        'cancelled', 'canceled',
+                                        'initKordWebTorrent', 'kordWebTorrent',
+                                        'initKordSecurity', 'showKordAlert',
+                                        'formatKordMessage', 'buildKordMediaHtml',
+                                        'checkSecurityMessageAI', 'callKordAI',
+                                        'currentUser', 'displayName',
+                                        'undefined', 'null is not',
+                                        'Failed to load resource', 'googleapis',
+                                        'CHATWOOD', 'chatwood', 'Chatwood'
+                                    ];
 // Also only show error toast once per session
 let _errorShown = false;
 
@@ -1048,28 +1056,27 @@ let _errorShown = false;
                                         } catch(e) {}
                                     }
 
-                                    // window.onerror handler
                                     window.onerror = function(message, source, lineno, colno, error) {
-                                        if (shouldIgnore(message)) return false;
-                                        sendErrorReport({
-                                            message: message,
-                                            source: source,
-                                            lineno: lineno,
-                                            colno: colno,
-                                            stack: error && error.stack ? error.stack : source + ':' + lineno,
-                                            type: 'uncaught'
-                                        });
-                                        // Show user-friendly error toast ONLY ONCE per session
-                                        if (_errorShown) return true;
-                                        _errorShown = true;
-                                        var errorMsg = document.getElementById('errorReportMsg') || createErrorMsg();
-                                        errorMsg.style.display = 'block';
-                                        setTimeout(function() {
-                                            errorMsg.style.display = 'none';
-                                            _errorShown = false; // Reset after dismiss
-                                        }, 5000);
-                                        return true;
-                                    };
+                                                                            if (shouldIgnore(message)) return false;
+                                                                            console.error('[Kord Error]', { message, source, lineno, colno, error: error && error.stack });
+                                                                            sendErrorReport({
+                                                                                message: message,
+                                                                                source: source,
+                                                                                lineno: lineno,
+                                                                                colno: colno,
+                                                                                stack: error && error.stack ? error.stack : source + ':' + lineno,
+                                                                                type: 'uncaught'
+                                                                            });
+                                                                            if (_errorShown) return true;
+                                                                            _errorShown = true;
+                                                                            var errorMsg = document.getElementById('errorReportMsg') || createErrorMsg();
+                                                                            errorMsg.style.display = 'block';
+                                                                            setTimeout(function() {
+                                                                                errorMsg.style.display = 'none';
+                                                                                _errorShown = false;
+                                                                            }, 5000);
+                                                                            return true;
+                                                                        };
 
                                     // window.onunhandledrejection handler
                                     window.addEventListener('unhandledrejection', function(event) {
