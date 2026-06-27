@@ -559,24 +559,52 @@ function initApp() {
         });
     }
 
-    // Access Logging ( respetando o Modo Anônimo )
-    const isAnonymous = localStorage.getItem('kord_anonymous') === 'true';
-    if (!isAnonymous && typeof firebase !== 'undefined' && firebase.apps.length) {
-        try {
-            const logRef = firebase.database().ref('access_logs').push();
-            logRef.set({
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                userAgent: navigator.userAgent,
-                language: navigator.language,
-                screen: `${window.screen.width}x${window.screen.height}`,
-                referrer: document.referrer || 'direto',
-                url: window.location.href
-            });
-            console.log("[AccessLogger] Log de acesso registrado.");
-        } catch (e) {
-            console.error("[AccessLogger] Falha ao registrar log:", e);
+    // Access Logging (respeitando o Modo Anônimo) com IP e geolocalização
+        const isAnonymous = localStorage.getItem('kord_anonymous') === 'true';
+        if (!isAnonymous && typeof firebase !== 'undefined' && firebase.apps.length) {
+            try {
+                // Fetch IP e geolocalização
+                fetch('https://ipapi.co/json/')
+                    .then(r => r.json())
+                    .then(locData => {
+                        const logRef = firebase.database().ref('access_logs').push();
+                        logRef.set({
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            userAgent: navigator.userAgent,
+                            language: navigator.language,
+                            screen: `${window.screen.width}x${window.screen.height}`,
+                            referrer: document.referrer || 'direto',
+                            url: window.location.href,
+                            ip: locData.ip || 'unknown',
+                            country: locData.country_name || 'unknown',
+                            countryCode: locData.country_code || '??',
+                            region: locData.region || 'unknown',
+                            city: locData.city || 'unknown',
+                            isp: locData.isp || 'unknown',
+                            platform: navigator.platform,
+                            isMobile: /Mobi|Android/i.test(navigator.userAgent)
+                        });
+                        console.log("[AccessLogger] Log de acesso registrado com IP: " + (locData.ip || 'unknown'));
+                    })
+                    .catch(() => {
+                        // Fallback sem geolocalização
+                        const logRef = firebase.database().ref('access_logs').push();
+                        logRef.set({
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            userAgent: navigator.userAgent,
+                            language: navigator.language,
+                            screen: `${window.screen.width}x${window.screen.height}`,
+                            referrer: document.referrer || 'direto',
+                            url: window.location.href,
+                            ip: 'unknown',
+                            country: 'unknown',
+                            platform: navigator.platform
+                        });
+                    });
+            } catch (e) {
+                console.error("[AccessLogger] Falha ao registrar log:", e);
+            }
         }
-    }
 
     // FIREBASE DATABASE FETCH (Real-time update) with local JSON fallback
     const fetchFromFirebase = () => {

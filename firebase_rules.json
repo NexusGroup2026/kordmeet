@@ -2,18 +2,16 @@
   "rules": {
     ".read": false,
     ".write": false,
-
     "users": {
       "$uid": {
         ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.hasChildren(['email'])",
-
         "email": {
           ".validate": "newData.isString() && newData.val().matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/)"
         },
         "displayName": {
-          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60 && !newData.val().matches(/[<>\"\\\\]/)"
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60 && !newData.val().matches(/[<>'\"\\\\]/)"
         },
         "nickname": {
           ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 30 && newData.val().matches(/^[a-zA-Z0-9_]+$/)"
@@ -34,7 +32,7 @@
           ".validate": "newData.isNumber()"
         },
         "customCSS": {
-          ".validate": "newData.isString() && newData.val().length < 5000 && !newData.val().matches(/expression\\(|javascript:|url\\(|@import/)"
+          ".validate": "newData.isString() && newData.val().length < 5000 && !newData.val().matches(/expression\\(|javascript:|url\\(|@import)/"
         },
         "isAdmin": {
           ".validate": "newData.isBoolean()"
@@ -98,7 +96,6 @@
         }
       }
     },
-
     "email_verifications": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
@@ -121,15 +118,13 @@
         }
       }
     },
-
     "registered_emails": {
       "$email": {
         ".read": "auth != null && (auth.token.email === $email || auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/))",
         ".write": "auth != null && auth.token.email === $email",
-        ".validate": "newData.isString() && newData.val() === $uid"
+        ".validate": "newData.isString()"
       }
     },
-
     "nicknames": {
       "$nick": {
         ".read": "auth != null",
@@ -137,13 +132,11 @@
         ".validate": "newData.isString() && newData.val().length > 0"
       }
     },
-
     "servers": {
       "$serverId": {
         ".read": "auth != null",
         ".write": "auth != null",
         ".validate": "newData.hasChildren(['name', 'owner'])",
-
         "name": {
           ".validate": "newData.isString() && newData.val().length < 150 && !newData.val().matches(/(<script|javascript:|on\\w+=|<iframe)/)"
         },
@@ -223,11 +216,10 @@
         }
       }
     },
-
     "forums": {
       "$forumId": {
         ".read": "auth != null",
-        ".write": "auth != null && (auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/) || auth.uid === $forumId.split('_')[0])",
+        ".write": "auth != null && (auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/) || auth.uid === $forumId)",
         ".validate": "newData.hasChildren(['author', 'text', 'time']) && newData.child('text').isString() && newData.child('text').val().length < 10000 && !newData.child('text').val().matches(/(<script|javascript:|onerror=)/)",
         "author": {
           ".validate": "newData.isString()"
@@ -279,7 +271,6 @@
         }
       }
     },
-
     "friendships": {
       "$uid": {
         "$friendUid": {
@@ -289,7 +280,6 @@
         }
       }
     },
-
     "friend_requests": {
       "$toUid": {
         "$fromUid": {
@@ -299,7 +289,6 @@
         }
       }
     },
-
     "blocked_users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
@@ -309,7 +298,6 @@
         }
       }
     },
-
     "direct_messages": {
       "$chatId": {
         ".read": "auth != null && (root.child('direct_messages').child($chatId).child('info').child('members').child(auth.uid).exists() || root.child('direct_messages').child($chatId).child('info').child('owner').val() === auth.uid)",
@@ -317,7 +305,7 @@
         "info": {
           ".validate": "newData.hasChildren(['name', 'owner', 'members']) && newData.child('name').isString() && newData.child('name').val().length < 100",
           "name": {
-            ".validate": "newData.isString() && !newData.val().matches(/[<>\"\\\\]/)"
+            ".validate": "newData.isString() && !newData.val().matches(/[<>'\"/\\\\]/)"
           },
           "owner": {
             ".validate": "newData.isString()"
@@ -376,7 +364,6 @@
         }
       }
     },
-
     "webrtc_rooms": {
       "$roomId": {
         ".read": "auth != null",
@@ -438,7 +425,6 @@
         }
       }
     },
-
     "global_notifications": {
       ".read": "auth != null",
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
@@ -446,7 +432,6 @@
         ".validate": "newData.hasChildren(['message', 'timestamp']) && newData.child('message').isString() && newData.child('message').val().length < 500"
       }
     },
-
     "changelog": {
       ".read": true,
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
@@ -454,18 +439,16 @@
         ".validate": "newData.hasChildren(['title', 'description', 'timestamp']) && newData.child('title').val().length < 200 && newData.child('description').val().length < 5000"
       }
     },
-
     "tools": {
       ".read": true,
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       "$toolId": {
         ".validate": "newData.hasChildren(['name', 'url', 'category']) && newData.child('name').val().length < 200 && newData.child('url').val().matches(/^https?:\\/\\//)",
         "name": {
-          ".validate": "newData.isString() && !newData.val().matches(/[<>\"\\\\]/)"
+          ".validate": "newData.isString() && !newData.val().matches(/[<>'\"/\\\\]/)"
         }
       }
     },
-
     "popular_stats": {
       ".read": true,
       "$week_id": {
@@ -474,39 +457,34 @@
         }
       }
     },
-
     "search_activity": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null",
       "$entry_id": {
-        ".validate": "newData.hasChildren(['query', 'timestamp', 'userId']) && newData.child('query').isString() && newData.child('query').val().length < 100 && newData.child('userId').isString() && newData.child('userId') === auth.uid"
+        ".validate": "newData.hasChildren(['query', 'timestamp']) && newData.child('query').isString() && newData.child('query').val().length < 100"
       }
     },
-
     "access_logs": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null",
       "$entry_id": {
-        ".validate": "newData.hasChildren(['timestamp', 'userAgent', 'userId']) && newData.child('userAgent').isString() && newData.child('userId').isString() && newData.child('userId') === auth.uid"
+        ".validate": "newData.hasChildren(['timestamp', 'userAgent']) && newData.child('userAgent').isString()"
       }
     },
-
     "bug_reports": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null",
       "$report_id": {
-        ".validate": "newData.hasChildren(['type', 'description', 'timestamp', 'userId']) && newData.child('description').isString() && newData.child('description').val().length < 2000 && newData.child('userId').isString() && newData.child('userId') === auth.uid"
+        ".validate": "newData.hasChildren(['type', 'description', 'timestamp']) && newData.child('description').isString() && newData.child('description').val().length < 2000"
       }
     },
-
     "message_reports": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null",
       "$report_id": {
-        ".validate": "newData.hasChildren(['reporterId', 'timestamp', 'messageId', 'reason']) && newData.child('reporterId').isString() && newData.child('reporterId') === auth.uid"
+        ".validate": "newData.hasChildren(['reporterId', 'timestamp', 'messageId', 'reason']) && newData.child('reporterId').isString() && newData.child('reporterId') == auth.uid"
       }
     },
-
     "supporters": {
       ".read": true,
       "$key": {
@@ -519,43 +497,36 @@
         }
       }
     },
-
     "error_reports": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null",
       "$reportId": {
-        ".validate": "newData.hasChildren(['message', 'stack', 'timestamp', 'userId', 'userAgent']) && newData.child('userId').isString() && newData.child('userId') === auth.uid"
+        ".validate": "newData.hasChildren(['message', 'stack', 'timestamp', 'userId', 'userAgent']) && newData.child('userId').isString() && newData.child('userId') == auth.uid"
       }
     },
-
     "admin_actions": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)"
     },
-
     "verified_donations": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)"
     },
-
     "transactions": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)"
     },
-
     "system_config": {
       ".read": true,
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)"
     },
-
     "file_shares": {
       "$shareId": {
         ".read": "auth != null",
-        ".write": "auth != null && auth.uid === $shareId.split('_')[0]",
+        ".write": "auth != null && auth.uid === $shareId",
         ".validate": "newData.hasChildren(['uploaderId', 'filename', 'url', 'timestamp']) && newData.child('uploaderId').isString() && newData.child('filename').isString() && newData.child('url').isString()"
       }
     },
-
     "presence": {
       "$uid": {
         ".read": "auth != null",
@@ -563,32 +534,27 @@
         ".validate": "newData.hasChildren(['status', 'lastSeen']) && newData.child('status').isString() && newData.child('lastSeen').isNumber()"
       }
     },
-
     "typing_indicators": {
       "$uid": {
         ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid"
       }
     },
-
     "discovery_queue": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       "$entry_id": {
-        ".validate": "newData.isString() && newData.val().length > 2 && newData.val().length < 100 && !newData.val().matches(/[<>\"\\\\]/)"
+        ".validate": "newData.isString() && newData.val().length > 2 && newData.val().length < 100 && !newData.val().matches(/[<>'\"/\\\\]/)"
       }
     },
-
     "discovery_history": {
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)"
     },
-
     "_honeypot_logs": {
       ".write": true,
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)"
     },
-
     "_rate_limits": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
@@ -596,12 +562,10 @@
         ".validate": "newData.hasChildren(['count', 'windowStart']) && newData.child('count').isNumber() && newData.child('windowStart').isNumber()"
       }
     },
-
     "_security_events": {
       ".write": true,
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)"
     },
-
     "kord_stickers": {
       ".read": "auth != null",
       ".write": "auth != null",
@@ -609,7 +573,6 @@
         ".validate": "newData.isString()"
       }
     },
-
     "kord_files": {
       ".read": "auth != null",
       ".write": "auth != null",
