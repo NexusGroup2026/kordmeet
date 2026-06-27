@@ -1415,7 +1415,7 @@ function buildKordMediaHtml(m) {
         const saveBtn = isSaveable ? `<button onclick="saveKordMedia('${m.mediaType}', '${m.mediaUrl}', event)" class="kord-save-media-btn" style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.6); color:#fff; border:none; border-radius:4px; padding:4px 8px; font-size:12px; cursor:pointer; opacity:0; transition:opacity 0.2s; display:flex; align-items:center; gap:4px; z-index:10;"><span class="material-icons-round" style="font-size:14px;">${saveIcon}</span> ${saveLabel}</button>` : '';
 
         mediaHtml = `<div class="kord-media-wrapper" style="position:relative; display:inline-block; max-width:300px; margin-top:10px;" onmouseenter="const b=this.querySelector('.kord-save-media-btn'); if(b) b.style.opacity=1;" onmouseleave="const b=this.querySelector('.kord-save-media-btn'); if(b) b.style.opacity=0;">
-            <img src="${m.mediaUrl}" style="max-width:100%; max-height:400px; border-radius:8px; display:block; border:1px solid rgba(255,255,255,0.1);">
+            <img src="${m.mediaUrl}" style="max-width:100%; max-height:400px; border-radius:8px; display:block; border:1px solid rgba(255,255,255,0.1); cursor:zoom-in;" onclick="openKordLightbox('${m.mediaUrl}')" loading="lazy">
             ${saveBtn}
         </div>`;
     } else if (m.mediaType === 'file') {
@@ -4181,3 +4181,31 @@ function copyCallInviteLink() {
         setTimeout(() => clearInterval(checkInterval), 30000);
     }
 })();
+
+// ==========================================
+// KORD LIGHTBOX (Image Viewer)
+// ==========================================
+function openKordLightbox(url) {
+    const lightbox = document.getElementById('kord-lightbox');
+    const img = document.getElementById('kord-lightbox-img');
+    if (!lightbox || !img) return;
+    img.src = url;
+    lightbox.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    // ESC key handler
+    document.body._kordLightboxHandler = (e) => {
+        if (e.key === 'Escape') closeKordLightbox();
+    };
+    document.addEventListener('keydown', document.body._kordLightboxHandler);
+}
+
+function closeKordLightbox(e) {
+    if (e && e.target !== e.currentTarget && !e.target.onclick?.toString().includes('closeKordLightbox')) return;
+    const lightbox = document.getElementById('kord-lightbox');
+    if (lightbox) lightbox.style.display = 'none';
+    document.body.style.overflow = '';
+    if (document.body._kordLightboxHandler) {
+        document.removeEventListener('keydown', document.body._kordLightboxHandler);
+        delete document.body._kordLightboxHandler;
+    }
+}

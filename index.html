@@ -1673,9 +1673,16 @@ let _errorShown = false;
                 </div>
 
                 <button onclick="closeKordAppsModal()" class="btn-primary-clean"
-                    style="width:100%; margin-top:30px; padding:12px; border-radius:12px;">Fechar Apps</button>
-            </div>
-        </div>
-</body>
+                                    style="width:100%; margin-top:30px; padding:12px; border-radius:12px;">Fechar Apps</button>
+                            </div>
+                        </div>
+                </div>
 
-</html>
+                <!-- Kord Image Lightbox -->
+                <div id="kord-lightbox" onclick="closeKordLightbox(event)" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; justify-content:center; align-items:center; flex-direction:column;">
+                    <button onclick="closeKordLightbox(event)" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.1); border:none; color:#fff; font-size:24px; cursor:pointer; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;">&times;</button>
+                    <img id="kord-lightbox-img" src="" style="max-width:90%; max-height:85%; border-radius:12px; box-shadow:0 0 60px rgba(0,0,0,0.8);">
+                    <div style="color:#64748b; font-size:0.8rem; margin-top:12px;">Clique fora ou pressione ESC para fechar</div>
+                </div>
+                </body>
+                </html>
