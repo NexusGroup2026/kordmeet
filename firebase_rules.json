@@ -32,8 +32,8 @@
           ".validate": "newData.isNumber()"
         },
         "customCSS": {
-          ".validate": "newData.isString() && newData.val().length < 5000 && !newData.val().matches(/expression\\(|javascript:|url\\(|@import)/"
-        },
+                  ".validate": "newData.isString() && newData.val().length < 5000 && !newData.val().matches(/expression\\\\(|javascript:|url\\\\(|@import)/)"
+                },
         "isAdmin": {
           ".validate": "newData.isBoolean()"
         },

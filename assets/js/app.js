@@ -187,15 +187,15 @@ window._switchViewComplete = function(viewName) {
     }
 
     // Load admin panel when admin view is opened (security check inside)
-        if (viewName === 'admin' && typeof loadAdminView === 'function') {
-            loadAdminView();
-        }
+    if (viewName === 'admin' && typeof loadAdminView === 'function') {
+        loadAdminView();
     }
+}
 
-    window.scrollToGrid = function () {
-        const scroller = document.querySelector('.content-scroll') || window;
-        scroller.scrollTo({ top: 300, behavior: 'smooth' });
-    };
+window.scrollToGrid = function () {
+    const scroller = document.querySelector('.content-scroll') || window;
+    scroller.scrollTo({ top: 300, behavior: 'smooth' });
+};
 
 // ============================================================
 // OPEN TOOL WITH TRACKING
