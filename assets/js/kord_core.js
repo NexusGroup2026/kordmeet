@@ -4,6 +4,9 @@ let currentKordServerOwner = null;
 let currentKordActiveRef = null;
 let currentKordCallServer = null;
 let currentKordCallChannel = null;
+let _friendsRef = null;
+let _friendRequestsRef = null;
+let _friendGroupsRef = null;
 
 function kordCleanupActiveListeners() {
     if (currentKordActiveRef) {
@@ -2972,7 +2975,13 @@ async function loadFriends() {
     const grid = document.getElementById('friendsGrid');
     if (!grid) return;
 
-    firebase.database().ref(`friendships/${currentUser.uid}`).on('value', async snap => {
+    // Clean up previous listeners before attaching new ones to prevent accumulation
+    if (_friendsRef) _friendsRef.off();
+    if (_friendRequestsRef) _friendRequestsRef.off();
+    if (_friendGroupsRef) _friendGroupsRef.off();
+
+    _friendsRef = firebase.database().ref(`friendships/${currentUser.uid}`);
+    _friendsRef.on('value', async snap => {
         const friends = snap.val() || {};
         const uids = Object.keys(friends);
 
@@ -3027,7 +3036,9 @@ function loadGroups() {
     const grid = document.getElementById('friendsGrid');
     if (!grid) return;
 
-    firebase.database().ref(`users/${currentUser.uid}/groups`).on('value', async snap => {
+    if (_friendGroupsRef) _friendGroupsRef.off();
+    _friendGroupsRef = firebase.database().ref(`users/${currentUser.uid}/groups`);
+    _friendGroupsRef.on('value', async snap => {
         const groups = snap.val() || {};
         const groupIds = Object.keys(groups);
 
@@ -3069,7 +3080,9 @@ let _kordProcessingFriendIds = new Set(); // Stores UIDs of accepted/rejected re
 
 function loadFriendRequests() {
     if (!currentUser) return;
-    firebase.database().ref(`friend_requests/${currentUser.uid}`).on('value', async snap => {
+    if (_friendRequestsRef) _friendRequestsRef.off();
+    _friendRequestsRef = firebase.database().ref(`friend_requests/${currentUser.uid}`);
+    _friendRequestsRef.on('value', async snap => {
         const reqs = snap.val() || {};
         const area = document.getElementById('friendRequestsSection');
         const list = document.getElementById('friendRequestsList');
