@@ -32,8 +32,8 @@
           ".validate": "newData.isNumber()"
         },
         "customCSS": {
-                  ".validate": "newData.isString() && newData.val().length < 5000 && !newData.val().matches(/expression\\\\(|javascript:|url\\\\(|@import)/)"
-                },
+          ".validate": "newData.isString() && newData.val().length < 5000 && !newData.val().matches(/expression\\(|javascript:|url\\(|@import/)"
+        },
         "isAdmin": {
           ".validate": "newData.isBoolean()"
         },
@@ -445,7 +445,7 @@
       "$toolId": {
         ".validate": "newData.hasChildren(['name', 'url', 'category']) && newData.child('name').val().length < 200 && newData.child('url').val().matches(/^https?:\\/\\//)",
         "name": {
-          ".validate": "newData.isString() && !newData.val().matches(/[<>'\"/\\\\]/)"
+          ".validate": "newData.isString() && !newData.val().matches(/[<>'\"]/)"
         }
       }
     },
@@ -482,7 +482,7 @@
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null",
       "$report_id": {
-        ".validate": "newData.hasChildren(['reporterId', 'timestamp', 'messageId', 'reason']) && newData.child('reporterId').isString() && newData.child('reporterId') == auth.uid"
+        ".validate": "newData.hasChildren(['reporterId', 'timestamp', 'messageId', 'reason']) && newData.child('reporterId').isString() && newData.child('reporterId').val() == auth.uid"
       }
     },
     "supporters": {
@@ -501,7 +501,7 @@
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null",
       "$reportId": {
-        ".validate": "newData.hasChildren(['message', 'stack', 'timestamp', 'userId', 'userAgent']) && newData.child('userId').isString() && newData.child('userId') == auth.uid"
+        ".validate": "newData.hasChildren(['message', 'stack', 'timestamp', 'userId', 'userAgent']) && newData.child('userId').isString() && newData.child('userId').val() == auth.uid"
       }
     },
     "admin_actions": {
@@ -544,7 +544,7 @@
       ".read": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       ".write": "auth != null && auth.token.email.matches(/^(moisesvvanti@gmail.com|vitortrader2017@gmail.com|rafebrlz1@hotmail.com)$/)",
       "$entry_id": {
-        ".validate": "newData.isString() && newData.val().length > 2 && newData.val().length < 100 && !newData.val().matches(/[<>'\"/\\\\]/)"
+        ".validate": "newData.isString() && newData.val().length > 2 && newData.val().length < 100 && !newData.val().matches(/[<>'\"]/)"
       }
     },
     "discovery_history": {
