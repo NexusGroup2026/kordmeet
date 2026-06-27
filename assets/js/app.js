@@ -120,54 +120,42 @@ const ClickTracker = (() => {
 // GLOBAL NAVIGATION
 // ============================================================
 window.switchView = function (viewName) {
-    // Fade out current view, fade in new one (vanilla JS, no jQuery dependency)
+    // Vanilla JS transitions — fade out all views, then show and fade in target
     const views = document.querySelectorAll('[id^="view-"]');
     views.forEach(el => {
-        el.style.transition = 'opacity 0.15s ease';
+        el.style.transition = 'opacity 0.12s ease';
         el.style.opacity = '0';
-        setTimeout(() => {
-            el.style.display = 'none';
-            el.style.opacity = '1';
-            const target = document.getElementById(`view-${viewName}`);
-            if (target) {
-                target.style.display = (viewName === 'kord') ? 'flex' : 'block';
-                // Force reflow then fade in
-                target.getBoundingClientRect();
-                target.style.transition = 'opacity 0.2s ease';
-                target.style.opacity = '0';
-                requestAnimationFrame(() => {
-                    target.style.opacity = '1';
-                });
+    });
+
+    setTimeout(() => {
+        views.forEach(el => {
+            if (!el.id.endsWith('-' + viewName)) {
+                el.style.display = 'none';
             }
-        }, 150);
-    });witchView continues below
-            _switchViewComplete(viewName);
         });
-        // Early return for nav highlight (doesn't depend on fade)
+
+        const target = document.getElementById('view-' + viewName);
+        if (target) {
+            target.style.display = (viewName === 'kord') ? 'flex' : 'block';
+            // Force reflow
+            void target.getBoundingClientRect();
+            target.style.transition = 'opacity 0.18s ease';
+            target.style.opacity = '0';
+            requestAnimationFrame(() => {
+                target.style.opacity = '1';
+            });
+        }
+
+        // Update Desktop Nav
         document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(el => el.classList.remove('active'));
         const sidebarLink = document.querySelector(`.nav-item[onclick*="switchView('${viewName}')"]`);
         if (sidebarLink) sidebarLink.classList.add('active');
         const mobileLink = document.querySelector(`.mobile-nav-item[onclick*="switchView('${viewName}')"]`);
         if (mobileLink) mobileLink.classList.add('active');
-        return;
-    }
-    // Fallback: no jQuery
-    document.querySelectorAll('[id^="view-"]').forEach(el => el.style.display = 'none');
-    const target = document.getElementById(`view-${viewName}`);
-    if (target) target.style.display = (viewName === 'kord') ? 'flex' : 'block';
 
-    // Update Desktop Nav
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    const sidebarLink = document.querySelector(`.nav-item[onclick*="switchView('${viewName}')"]`);
-    if (sidebarLink) sidebarLink.classList.add('active');
-
-    // Update Mobile Nav
-    document.querySelectorAll('.mobile-nav-item').forEach(el => el.classList.remove('active'));
-    const mobileLink = document.querySelector(`.mobile-nav-item[onclick*="switchView('${viewName}')"]`);
-    if (mobileLink) mobileLink.classList.add('active');
-
-    // Post-switch logic extracted for jQuery callback
-    if (typeof _switchViewComplete === 'function') _switchViewComplete(viewName);
+        // Post-switch logic
+        if (typeof _switchViewComplete === 'function') _switchViewComplete(viewName);
+    }, 150);
 }
 
 // Callback for jQuery fade completion
@@ -202,13 +190,12 @@ window._switchViewComplete = function(viewName) {
         if (viewName === 'admin' && typeof loadAdminView === 'function') {
             loadAdminView();
         }
+    }
 
+    window.scrollToGrid = function () {
+        const scroller = document.querySelector('.content-scroll') || window;
+        scroller.scrollTo({ top: 300, behavior: 'smooth' });
     };
-
-window.scrollToGrid = function () {
-    const scroller = document.querySelector('.content-scroll') || window;
-    scroller.scrollTo({ top: 300, behavior: 'smooth' });
-};
 
 // ============================================================
 // OPEN TOOL WITH TRACKING
