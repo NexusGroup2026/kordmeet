@@ -508,6 +508,10 @@ function switchAdminTab(tabName) {
         btn.style.color = '#a78bfa';
         btn.style.borderColor = 'rgba(99,102,241,0.3)';
     }
+
+    // Load data for new tabs
+    if (tabName === 'forum' && typeof adminLoadForum === 'function') adminLoadForum();
+    if (tabName === 'rewards' && typeof adminLoadRewards === 'function') adminLoadRewards();
 }
 
 // ============================================================

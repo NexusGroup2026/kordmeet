@@ -120,16 +120,27 @@ const ClickTracker = (() => {
 // GLOBAL NAVIGATION
 // ============================================================
 window.switchView = function (viewName) {
-    // jQuery fade out current view
-    if (typeof $ !== 'undefined') {
-        .fadeOut(150, function() {
-            document.querySelectorAll('[id^="view-"]').forEach(el => el.style.display = 'none');
+    // Fade out current view, fade in new one (vanilla JS, no jQuery dependency)
+    const views = document.querySelectorAll('[id^="view-"]');
+    views.forEach(el => {
+        el.style.transition = 'opacity 0.15s ease';
+        el.style.opacity = '0';
+        setTimeout(() => {
+            el.style.display = 'none';
+            el.style.opacity = '1';
             const target = document.getElementById(`view-${viewName}`);
             if (target) {
                 target.style.display = (viewName === 'kord') ? 'flex' : 'block';
-                .hide().fadeIn(200);
+                // Force reflow then fade in
+                target.getBoundingClientRect();
+                target.style.transition = 'opacity 0.2s ease';
+                target.style.opacity = '0';
+                requestAnimationFrame(() => {
+                    target.style.opacity = '1';
+                });
             }
-            // Rest of switchView continues below
+        }, 150);
+    });witchView continues below
             _switchViewComplete(viewName);
         });
         // Early return for nav highlight (doesn't depend on fade)

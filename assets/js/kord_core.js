@@ -627,7 +627,7 @@ function selectKordServer(serverId, serverData) {
         selectKordChannel('forums');
     } else {
         currentKordServerOwner = serverData.owner;
-        const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
+        const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
         const isOwner = currentUser && currentUser.uid === serverData.owner;
         const canManage = isSuperAdmin || isOwner;
 
@@ -686,7 +686,7 @@ function selectKordServer(serverId, serverData) {
 // DELETE SERVER (Owner or Super-Admin only, isolated)
 // ==========================================
 function deleteKordServer(serverId) {
-    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
+    const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
     const isOwner = currentUser && currentUser.uid === currentKordServerOwner;
     if (!isSuperAdmin && !isOwner) {
         return showKordAlert("Acesso Negado", "Apenas o dono ou super-administrador pode excluir esta comunidade.", "lock", "#ef4444");
@@ -1129,7 +1129,7 @@ async function sendKordMessage(mediaData = null) {
     if (!msg && !mediaData) return;
     if (!currentKordChannel) return;
 
-    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
+    const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
 
     if (!isSuperAdmin) {
         const isHarmful = await checkSecurityMessageAI(msg);
@@ -1227,7 +1227,7 @@ function banUserKord() {
     if (!currentUser) return;
     const uid = currentUser.uid;
 
-    if ((currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com')) return; // Super-Admin cannot be banned
+    if ((['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email))) return; // Super-Admin cannot be banned
 
     showKordAlert("CONTA BANIDA", "Detectamos conteúdo restrito (Pornografia/Pedofilia/Abusos). Sua conta foi suspensa em definitivo.", "gavel", "#ef4444");
 
@@ -1249,7 +1249,7 @@ function kordRenderMessage(m, k, container, type = 'chat', skipScroll = false) {
     if (!container) return;
     const authorColor = m.color || '#cbd5e1';
     const authorDeco = m.decoration || 'none';
-    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
+    const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
     const isMyMsg = (currentUser && m.uid === currentUser.uid);
     const isServerOwner = (currentUser && currentUser.uid === currentKordServerOwner);
     const isForum = type === 'forums';
@@ -1813,7 +1813,7 @@ function showKordContextMenu(e, msgId, authorId, authorName, authorColor) {
     menu.style.opacity = '1';
 
     // Permissions Check
-    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
+    const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
     const isOwner = (currentUser && currentUser.uid === currentKordServerOwner);
     const isAdmin = (currentUser && currentUser.isAdmin);
     const isMyMsg = (currentUser && authorId === currentUser.uid);
@@ -1872,7 +1872,7 @@ function contextAction(action, extra = null) {
     const sId = currentKordServer;
     const cId = currentKordChannel;
     const isForum = cId === 'forums';
-    const isSuperAdmin = currentUser && (currentUser.email === 'moisesvvanti@gmail.com' || currentUser.email === 'vitortrader2017@gmail.com');
+    const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
     const isMyMsg = (currentUser && currentContextAuthorId === currentUser.uid);
     const isOwner = (currentUser && currentUser.uid === currentKordServerOwner);
 
