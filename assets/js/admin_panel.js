@@ -443,10 +443,8 @@ function reportKordMessage() {
     var msgId = window.currentContextMsgId;
     var msgPath = '';
 
-    try {
-        if (target === 'forums') {
-            msgPath = 'forums/' + msgId;
-        } else if (target && target.indexOf('dm:') === 0) {
+        try {
+            if (target && target.indexOf('dm:') === 0) {
             var uid = target.replace('dm:', '');
             var dmId = window.currentUser.uid < uid ? window.currentUser.uid + '_' + uid : uid + '_' + window.currentUser.uid;
             msgPath = 'direct_messages/' + dmId + '/messages/' + msgId;
@@ -510,7 +508,6 @@ function switchAdminTab(tabName) {
     }
 
     // Load data for new tabs
-    if (tabName === 'forum' && typeof adminLoadForum === 'function') adminLoadForum();
     if (tabName === 'rewards' && typeof adminLoadRewards === 'function') adminLoadRewards();
 }
 

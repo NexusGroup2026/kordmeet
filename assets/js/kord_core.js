@@ -1,5 +1,5 @@
 let currentKordServer = 'home';
-let currentKordChannel = 'forums';
+let currentKordChannel = 'home';
 let currentKordServerOwner = null;
 let currentKordActiveRef = null;
 let currentKordCallServer = null;
@@ -625,15 +625,11 @@ function selectKordServer(serverId, serverData) {
         currentKordServerOwner = null;
         document.getElementById('kord-server-header').innerText = 'Kord Home';
         document.getElementById('kord-channel-list').innerHTML = `
-            <div class="channel-item active" onclick="selectKordChannel('forums')">
-                <span class="material-icons-round" style="color:#f59e0b;">forum</span> Fóruns (Updates)
-            </div>
-            <div class="channel-item" id="channel-item-friends" onclick="selectKordChannel('friends')">
-                <span class="material-icons-round" style="color:#10b981;">people</span> Amigos
-            </div>
-        `;
-        selectKordChannel('forums');
-    } else {
+                    <div class="channel-item active" id="channel-item-friends" onclick="selectKordChannel('friends')">
+                        <span class="material-icons-round" style="color:#10b981;">people</span> Amigos
+                    </div>
+                `;
+            } else {
         currentKordServerOwner = serverData.owner;
         const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
         const isOwner = currentUser && currentUser.uid === serverData.owner;
@@ -861,16 +857,6 @@ function selectKordChannel(channelId, channelData, serverId) {
 
     // ALWAYS CLEANUP RTDB CHAT LISTENERS
     kordCleanupActiveListeners();
-
-    if (channelId === 'forums') {
-        if (typeof activePreviewRef !== 'undefined' && activePreviewRef) activePreviewRef.off();
-        headerName.innerText = 'Fóruns de Atualizações';
-        body.innerHTML = `<div id="forumList" style="display:flex; flex-direction:column; gap:10px; padding-bottom:20px;">Carregando discussões...</div>`;
-        inputArea.style.display = 'block';
-        inputArea.setAttribute('data-target', 'forums');
-        loadForums();
-        return;
-    }
 
     if (channelData) {
         headerName.innerText = channelData.name;
@@ -1215,9 +1201,6 @@ async function sendKordMessage(mediaData = null) {
     if (currentKordChannel.startsWith('dm:')) {
         const chatId = currentKordChannel.replace('dm:', '');
         writeRef = firebase.database().ref(`direct_messages/${chatId}/messages`);
-    } else if (currentKordChannel === 'forums') {
-        if (!isSuperAdmin) return showKordAlert("Acesso Bloqueado", "Somente o administrador do sistema pode gerenciar tópicos do Fórum Geral.", "lock", "#ef4444");
-        writeRef = firebase.database().ref('forums');
     } else if (currentKordServer !== 'home' && currentKordChannel) {
         writeRef = firebase.database().ref(`servers/${currentKordServer}/channels/${currentKordChannel}/messages`);
     }
@@ -1293,10 +1276,9 @@ function kordRenderMessage(m, k, container, type = 'chat', skipScroll = false) {
     const authorDeco = m.decoration || 'none';
     const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
     const isMyMsg = (currentUser && m.uid === currentUser.uid);
-    const isServerOwner = (currentUser && currentUser.uid === currentKordServerOwner);
-    const isForum = type === 'forums';
+        const isServerOwner = (currentUser && currentUser.uid === currentKordServerOwner);
 
-    let canEdit = isSuperAdmin || isMyMsg || (isServerOwner && !isForum);
+        let canEdit = isSuperAdmin || isMyMsg || isServerOwner;
     let actionsHtml = '';
     if (canEdit) {
         actionsHtml = `
@@ -1341,7 +1323,6 @@ function kordRenderMessage(m, k, container, type = 'chat', skipScroll = false) {
         item.setAttribute('data-msg-id', k);
         item.setAttribute('oncontextmenu', `return showKordContextMenu(event, '${k}', '${m.uid || ''}', '${(m.author || '').replace(/'/g, "\\'")}', '${authorColor}')`);
         item.style.cssText = `margin-top:16px; display:flex; gap:12px; align-items:flex-start; position:relative;`;
-        if (isForum) item.style.borderLeft = '3px solid #f59e0b';
 
         item.innerHTML = `
             ${actionsHtml}
@@ -1430,12 +1411,6 @@ function kordAttachChatListener(ref, container, type = 'chat') {
     });
 }
 
-function loadForums() {
-    const list = document.getElementById('forumList');
-    if (!list) return;
-    const ref = firebase.database().ref('forums');
-    kordAttachChatListener(ref, list, 'forums');
-}
 
 function buildKordMediaHtml(m) {
     if (!m || !m.mediaType || !m.mediaUrl) return '';
@@ -1792,7 +1767,7 @@ let currentContextMsgText = "";
 function openEditKordMsg(msgId, targetType) {
     currentContextMsgId = msgId;
     // We need to find the text of the message.
-    // In chat/forums, the container has class message-item.
+    // In chat, the container has class message-item.
     // We can try to find it by looking for the element that has the onclick... 
     // Actually, it's easier to just fetch it from current context or prompt.
     // Since we don't have the text directly here, we'll use a prompt without default value
@@ -1849,23 +1824,17 @@ function showKordContextMenu(e, msgId, authorId, authorName, authorColor) {
     const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
     const isOwner = (currentUser && currentUser.uid === currentKordServerOwner);
     const isAdmin = (currentUser && currentUser.isAdmin);
-    const isMyMsg = (currentUser && authorId === currentUser.uid);
-    const isForum = currentKordChannel === 'forums';
+        const isMyMsg = (currentUser && authorId === currentUser.uid);
 
-    // Check Permissions for Context Menu display
+        // Permissions Check
     // SuperAdmin always has power.
-    // Forum restrictions: Only SuperAdmin can edit/delete forum messages.
+    // Permissions Check
     // General channels: Owner can delete everything. MyMsg can delete/edit itself.
     let hasEditPower = false;
     let hasDeletePower = false;
 
-    if (isForum) {
-        hasEditPower = isSuperAdmin;
-        hasDeletePower = isSuperAdmin;
-    } else {
-        hasEditPower = isSuperAdmin || isMyMsg; // Authors can edit their own text
-        hasDeletePower = isSuperAdmin || isMyMsg || isOwner; // Owners can wipe anything, authors can wipe their own
-    }
+    hasEditPower = isSuperAdmin || isMyMsg;
+    hasDeletePower = isSuperAdmin || isMyMsg || isOwner;
 
     document.getElementById('ctx-owner-pin').style.display = isOwner ? 'flex' : 'none';
     document.getElementById('ctx-owner-edit').style.display = hasEditPower ? 'flex' : 'none';
@@ -1904,16 +1873,11 @@ function showKordContextMenu(e, msgId, authorId, authorName, authorColor) {
 function contextAction(action, extra = null) {
     const sId = currentKordServer;
     const cId = currentKordChannel;
-    const isForum = cId === 'forums';
     const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
     const isMyMsg = (currentUser && currentContextAuthorId === currentUser.uid);
     const isOwner = (currentUser && currentUser.uid === currentKordServerOwner);
 
     if (action === 'delete' || action === 'edit') {
-        if (isForum && !isSuperAdmin) {
-            return showKordAlert("Ação Negada", "Somente administradores podem modificar o Fórum Geral.", "lock", "#ef4444");
-        }
-
         // Strict Action Rules
         // Edit: Only Author or SuperAdmin
         if (action === 'edit' && !isSuperAdmin && !isMyMsg) {
@@ -1946,9 +1910,7 @@ function contextAction(action, extra = null) {
     } else if (action === 'delete') {
         showKordConfirm("Apagar Mensagem", "Tem certeza que deseja apagar isso para todos? Esta ação não tem volta.", () => {
             const target = document.getElementById('kord-input-area').getAttribute('data-target');
-            if (target === 'forums') {
-                firebase.database().ref(`forums/${currentContextMsgId}`).remove();
-            } else if (target && target.startsWith('dm:')) {
+            if (target && target.startsWith('dm:')) {
                 const uid = target.replace('dm:', '');
                 const dmId = currentUser.uid < uid ? currentUser.uid + '_' + uid : uid + '_' + currentUser.uid;
                 firebase.database().ref(`direct_messages/${dmId}/messages/${currentContextMsgId}`).remove();
@@ -1964,8 +1926,13 @@ function contextAction(action, extra = null) {
             if (newTxt && newTxt !== currentContextMsgText) {
                 const target = document.getElementById('kord-input-area').getAttribute('data-target');
                 const editPayload = { text: newTxt, edited: true, editTime: Date.now() };
-                if (target === 'forums') {
-                    firebase.database().ref(`forums/${currentContextMsgId}`).update(editPayload);
+                if (target && target.startsWith('dm:')) {
+                    const uid = target.replace('dm:', '');
+                    const dmId = currentUser.uid < uid ? currentUser.uid + '_' + uid : uid + '_' + currentUser.uid;
+                    firebase.database().ref(`direct_messages/${dmId}/messages/${currentContextMsgId}`).update(editPayload);
+                } else if (target && target.startsWith('group:')) {
+                    const gid = target.replace('group:', '');
+                    firebase.database().ref(`groups/${gid}/messages/${currentContextMsgId}`).update(editPayload);
                 } else {
                     firebase.database().ref(`servers/${sId}/channels/${cId}/messages/${currentContextMsgId}`).update(editPayload);
                 }
