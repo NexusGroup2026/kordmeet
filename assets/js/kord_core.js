@@ -7,6 +7,7 @@ let currentKordCallChannel = null;
 let _friendsRef = null;
 let _friendRequestsRef = null;
 let _friendGroupsRef = null;
+let _myServersRef = null;
 
 function kordCleanupActiveListeners() {
     if (currentKordActiveRef) {
@@ -580,7 +581,9 @@ function checkAndRingKordRoom(roomId, roomData, now) {
 }
 
 function loadMyServers() {
-    firebase.database().ref('users/' + currentUser.uid + '/servers').on('value', snap => {
+    if (_myServersRef) _myServersRef.off();
+    _myServersRef = firebase.database().ref('users/' + currentUser.uid + '/servers');
+    _myServersRef.on('value', snap => {
         const list = document.getElementById('kord-server-list');
         if (!list) return;
         list.innerHTML = '';
