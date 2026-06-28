@@ -1223,7 +1223,15 @@ async function sendKordMessage(mediaData = null) {
     }
 
     if (writeRef) {
-        writeRef.push(msgPayload, (error) => {
+            // Encrypt message text before sending to Firebase
+            (async () => {
+                const target = currentKordChannel.startsWith('dm:') 
+                    ? currentKordChannel.replace('dm:', '') 
+                    : (currentKordServer !== 'home' ? `server_${currentKordServer}_${currentKordChannel}` : null);
+                if (target && msgPayload.text) {
+                    msgPayload.text = await kordEncryptMessage(msgPayload.text, target);
+                }
+                writeRef.push(msgPayload, (error) => {
             if (error) {
                 // On failure: show error state (red tint) on the optimistic message
                 const tempEl = container?.querySelector(`[data-msg-id^="temp_"]`);
@@ -1237,10 +1245,11 @@ async function sendKordMessage(mediaData = null) {
                     (tempEl.querySelector('.msg-body') || tempEl.children[1]).appendChild(errDiv);
                 }
             }
-        });
-    }
+                    });
+                        })();
+                }
 
-    input.value = '';
+                input.value = '';
     closeAllKordPickers();
 }
 
@@ -1368,27 +1377,38 @@ function kordAttachChatListener(ref, container, type = 'chat') {
     // Track which temp-key optimistic messages have been replaced
     const _replacedTempKeys = {};
 
-    query.on('child_added', childSnap => {
-        const msgKey = childSnap.key;
-        // Skip if already rendered with this exact key
-        if (container.querySelector(`[data-msg-id="${msgKey}"]`)) return;
+    query.on('child_added', async childSnap => {
+            const msgKey = childSnap.key;
+            // Skip if already rendered with this exact key
+            if (container.querySelector(`[data-msg-id="${msgKey}"]`)) return;
 
-        // Remove ALL optimistic temp messages — dedup by text is unreliable
-        // The real message from Firebase is the source of truth
-        const tempEls = container.querySelectorAll('[data-msg-id^="temp_"]');
-        tempEls.forEach(el => el.remove());
+            // Remove ALL optimistic temp messages — dedup by text is unreliable
+            // The real message from Firebase is the source of truth
+            const tempEls = container.querySelectorAll('[data-msg-id^="temp_"]');
+            tempEls.forEach(el => el.remove());
 
-        kordRenderMessage(childSnap.val(), msgKey, container, type);
-    });
+            const msgData = childSnap.val();
+            // Decrypt message if encrypted
+            if (msgData && msgData.text) {
+                const convId = type === 'dm' ? ref.parent.key : (`server_${currentKordServer}_${currentKordChannel}`);
+                msgData.text = await kordDecryptMessage(msgData.text, convId);
+            }
+            kordRenderMessage(msgData, msgKey, container, type);
+        });
 
     // Listen for real-time updates (edits, deletes)
-    query.on('child_changed', childSnap => {
-        const msgKey = childSnap.key;
-        const existingEl = container.querySelector(`[data-msg-id="${msgKey}"]`);
-        if (existingEl) {
+    query.on('child_changed', async childSnap => {
+            const msgKey = childSnap.key;
+            const existingEl = container.querySelector(`[data-msg-id="${msgKey}"]`);
+            if (existingEl) {
+                const msgData = childSnap.val();
+                if (msgData && msgData.text) {
+                    const convId = type === 'dm' ? ref.parent.key : (`server_${currentKordServer}_${currentKordChannel}`);
+                    msgData.text = await kordDecryptMessage(msgData.text, convId);
+                }
             // Re-render the updated message
-            existingEl.remove();
-            kordRenderMessage(childSnap.val(), msgKey, container, type, true);
+                        existingEl.remove();
+                        kordRenderMessage(msgData, msgKey, container, type, true);
         }
     });
 
