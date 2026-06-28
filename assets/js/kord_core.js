@@ -4,6 +4,7 @@ let currentKordServerOwner = null;
 let currentKordActiveRef = null;
 let currentKordCallServer = null;
 let currentKordCallChannel = null;
+let currentKordChannelData = null;
 let _friendsRef = null;
 let _friendRequestsRef = null;
 let _friendGroupsRef = null;
@@ -824,6 +825,7 @@ function openServerSettings(serverId) {
 
 function selectKordChannel(channelId, channelData, serverId) {
     currentKordChannel = channelId;
+    currentKordChannelData = channelData || null;
     const body = document.getElementById('kord-chat-window');
     const headerName = document.getElementById('kord-current-channel-name');
     const inputArea = document.getElementById('kord-input-area');
@@ -879,13 +881,24 @@ function selectKordChannel(channelId, channelData, serverId) {
             inputArea.setAttribute('data-target', 'chat:' + serverId + ':' + channelId);
             loadChat(serverId, channelId);
         } else if (channelData.type === 'voice') {
-            callActions.style.display = 'flex';
-            if (typeof previewKordVoiceChannel === 'function') {
-                previewKordVoiceChannel(serverId, channelId, channelData);
-            } else {
-                body.innerHTML = `<div style="text-align:center; padding:50px; color:#94a3b8;"><span class="material-icons-round" style="font-size:48px; color:var(--primary-color);">volume_up</span><br><h2 style="color:#fff; margin:10px 0;">${channelData.name}</h2>Canal de Voz / Vídeo. Você pode entrar mesmo sem Câmera ou Microfone. Criptografia P2P WebRTC.</div>`;
-            }
-        }
+                    callActions.style.display = 'flex';
+                    if (typeof previewKordVoiceChannel === 'function') {
+                        previewKordVoiceChannel(serverId, channelId, channelData);
+                    } else {
+                        body.innerHTML = `<div style="text-align:center; padding:50px; color:#94a3b8;"><span class="material-icons-round" style="font-size:48px; color:var(--primary-color);">volume_up</span><br><h2 style="color:#fff; margin:10px 0;">${channelData.name}</h2>Canal de Voz / Vídeo. Você pode entrar mesmo sem Câmera ou Microfone. Criptografia P2P WebRTC.</div>`;
+                    }
+                } else if (channelData.type === 'private_announcement') {
+                    // Read-only for non-owners, read-write for owner
+                    const isOwner = currentUser && currentUser.uid === currentKordServerOwner;
+                    if (typeof activePreviewRef !== 'undefined' && activePreviewRef) activePreviewRef.off();
+                    body.innerHTML = `<div id="chatMessages" style="display:flex; flex-direction:column; gap:10px; padding-bottom:20px;"></div>`;
+                    inputArea.style.display = isOwner ? 'block' : 'none';
+                    inputArea.setAttribute('data-target', 'chat:' + serverId + ':' + channelId);
+                    if (!isOwner) {
+                        inputArea.innerHTML = `<div style="padding:8px 12px; color:#94a3b8; font-size:12px; text-align:center;">📢 Apenas o dono pode enviar neste canal</div>`;
+                    }
+                    loadChat(serverId, channelId);
+                }
     } else if (channelId === 'friends') {
         if (typeof activePreviewRef !== 'undefined' && activePreviewRef) activePreviewRef.off();
         headerName.innerText = 'Lista de Amigos';
@@ -1025,12 +1038,17 @@ function openCreateKordChannel(serverId) {
     }
 
     showKordModal({
-        title: "Criar Novo Canal",
-        desc: "Insira o nome do canal e escolha o tipo (Texto ou Voz/P2P).",
-        icon: "add_box",
-        iconColor: "#8b5cf6",
-        inputPlaceholder: "nome-do-canal",
-        showSelect: true,
+            title: "Criar Novo Canal",
+            desc: "Escolha o tipo: Texto (todos enviam), Voz/P2P, ou Anúncio Privado (só você envia).",
+            icon: "add_box",
+            iconColor: "#8b5cf6",
+            inputPlaceholder: "nome-do-canal",
+            showSelect: true,
+            selectOptions: [
+                { text: "💬 Texto — Todos enviam", value: "text" },
+                { text: "🎤 Voz/Video — P2P em grupo", value: "voice" },
+                { text: "📢 Anúncio Privado — Só o dono envia", value: "private_announcement" }
+            ],
         confirmText: "Adicionar Canal",
         cancelText: "Cancelar",
         onConfirm: (name, type) => {
@@ -1137,7 +1155,14 @@ async function sendKordMessage(mediaData = null) {
     if (!msg && !mediaData) return;
     if (!currentKordChannel) return;
 
-    const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
+        // Block messages in private_announcement channels unless user is the server owner
+        if (currentKordChannelData && currentKordChannelData.type === 'private_announcement') {
+            if (!currentKordServerOwner || currentUser.uid !== currentKordServerOwner) {
+                return showKordAlert("Envio Bloqueado", "Apenas o dono do servidor pode enviar neste canal.", "block", "#f59e0b");
+            }
+        }
+
+        const isSuperAdmin = currentUser && (['moisesvvanti@gmail.com', 'vitortrader2017@gmail.com', 'rafebrlz1@hotmail.com'].includes(currentUser.email));
 
     if (!isSuperAdmin) {
         const isHarmful = await checkSecurityMessageAI(msg);
