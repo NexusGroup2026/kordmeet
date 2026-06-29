@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https: data:; connect-src 'self' https: wss:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://* ws://localhost:*; media-src 'self' blob: https://*.firebaseio.com; worker-src 'self' blob:; frame-src https://www.youtube.com https://www.google.com https://*.tenor.com">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
@@ -24,24 +24,89 @@
     <link rel="stylesheet" href="assets/css/changelog.css">
     <link rel="stylesheet" href="assets/css/animations.css">
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-</head>
-<body>
-    <div id="app">
-        <!-- App mounts here -->
-    </div>
-
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (compat = global firebase object) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <!-- WebTorrent -->
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="view-kord" style="display:flex;height:100vh;flex-direction:column">
+            <!-- Kord UI renders here via JS -->
+            <div id="kord-loading" style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px">
+                <div style="font-size:3rem">🔥</div>
+                <div style="color:#888">Carregando Kord Meet...</div>
+            </div>
+        </div>
+    </div>
 
-    <!-- App Entry -->
-    <script type="module" src="assets/js/app.js"></script>
+    <!-- Kord Modules (order matters!) -->
+    <script src="assets/js/security/security.js"></script>
+    <script src="assets/js/security/kord_security.js"></script>
+    <script src="assets/js/security/kord_waf.js"></script>
+    <script src="assets/js/crypto/kord_crypto.js"></script>
+    <script src="assets/js/auth/kord_auth.js"></script>
+    <script src="assets/js/p2p/kord_connect.js"></script>
+    <script src="assets/js/p2p/kord_webrtc.js"></script>
+    <script src="assets/js/core/kord_core.js"></script>
+    <script src="assets/js/services/kord_explorer.js"></script>
+    <script src="assets/js/services/changelog.js"></script>
+    <script src="assets/js/services/db-worker.js"></script>
+    <script src="assets/js/services/kord_ai_news.js"></script>
+    <script src="assets/js/services/kord_bridge.js"></script>
+    <script src="assets/js/services/kord_nvidia_ai.js"></script>
+    <script src="assets/js/services/donate.js"></script>
+    <script src="assets/js/ui/theme_engine.js"></script>
+    <script src="assets/js/ui/admin_panel.js"></script>
+
+    <!-- Firebase Config Init -->
+    <script>
+    // Firebase configuration (injected at build time or use environment)
+    const KORD_FIREBASE_CONFIG = {
+        apiKey: "AIzaSyDemo",
+        authDomain: "kordmeet.firebaseapp.com",
+        databaseURL: "https://kordmeet-default-rtdb.firebaseio.com",
+        projectId: "kordmeet",
+        storageBucket: "kordmeet.appspot.com",
+        messagingSenderId: "000000000000",
+        appId: "1:000000000000:web:0000000000000000"
+    };
+
+    // Detect if we're on local dev or production
+    if (!firebase.apps.length) {
+        firebase.initializeApp(KORD_FIREBASE_CONFIG);
+    }
+
+    // Global current user (set by auth state listener)
+    let currentUser = null;
+
+    // Init security first
+    initKordSecurity();
+
+    // Auth state listener — this is the main entry point
+    firebase.auth().onAuthStateChanged(async function(user) {
+        if (user) {
+            currentUser = user;
+            // Remove loading
+            const loading = document.getElementById('kord-loading');
+            if (loading) loading.style.display = 'none';
+            // Init the chat core
+            initKordCore();
+        } else {
+            // Show login
+            showKordLogin();
+        }
+    });
+
+    // Fallback: if already logged in (refresh case)
+    firebase.auth().currentUser && (currentUser = firebase.auth().currentUser) && initKordCore();
+    </script>
 </body>
 </html>
