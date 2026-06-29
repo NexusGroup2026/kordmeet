@@ -33,6 +33,9 @@ RedirectMatch 403 /\.ip_
 # HEADERS - Security Headers
 # ============================================================
 
+# HTTP Strict Transport Security (HSTS)
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
 # Prevent MIME type sniffing
 Header always set X-Content-Type-Options "nosniff"
 
@@ -124,6 +127,16 @@ Header always unset X-AspNetMvc-Version
 </Files>
 
 <Files "ia_fetch.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "proxy.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "discovery_trigger.php">
     Order Allow,Deny
     Allow from all
 </Files>
