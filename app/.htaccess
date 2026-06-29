@@ -1,0 +1,289 @@
+# ============================================================
+# LUMINOUS SECURITY - APACHE HTACCESS
+# Ultimate protection for Kord Application
+# ============================================================
+
+# Force HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Block suspicious requests
+RewriteCond %{QUERY_STRING} (\.env|\.git|config|wp-admin|phpmyadmin) [NC,OR]
+RewriteCond %{QUERY_STRING} (localhost|127\.0\.0\.1) [NC,OR]
+RewriteCond %{QUERY_STRING} (union|select|insert|delete|drop|update|exec|xp_) [NC]
+RewriteRule ^(.*)$ - [F,L]
+
+# Block access to sensitive files
+<FilesMatch "\.(env|json|log|sql|xml|yml|yaml|md|txt|git|htaccess|htpasswd|ini)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Block directory listing
+Options -Indexes
+
+# Block .git and .env access
+RedirectMatch 403 /\.git
+RedirectMatch 403 /\.env
+RedirectMatch 403 /\.cache
+RedirectMatch 403 /\.ip_
+
+# ============================================================
+# HEADERS - Security Headers
+# ============================================================
+
+# HTTP Strict Transport Security (HSTS)
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+# Prevent MIME type sniffing
+Header always set X-Content-Type-Options "nosniff"
+
+# X-Frame-Options
+Header always set X-Frame-Options "SAMEORIGIN"
+
+# XSS Protection
+Header always set X-XSS-Protection "1; mode=block"
+
+# Referrer Policy
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Permissions Policy
+Header always set Permissions-Policy "accelerometer=(), camera=(), microphone=(), geolocation=()"
+
+# Content Security Policy
+Header always set Content-Security-Policy "default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https: data:; connect-src 'self' https:; frame-ancestors 'self';"
+
+# Remove sensitive headers
+Header unset X-Powered-By
+Header unset Server
+Header always unset X-AspNet-Version
+Header always unset X-AspNetMvc-Version
+
+# ============================================================
+# PHP CONFIGURATION
+# ============================================================
+
+<IfModule mod_php7.c>
+    php_flag display_errors off
+    php_flag log_errors on
+    php_flag engine off
+    php_value max_execution_time 30
+    php_value max_input_time 30
+    php_value memory_limit 64M
+    php_value post_max_size 1M
+    php_value upload_max_filesize 1M
+</IfModule>
+
+# ============================================================
+# RATE LIMITING
+# ========================================================= ===
+
+<IfModule mod_ratelimit.c>
+    # Limit each IP to 100 requests per minute
+    SetOutputFilter RATE_LIMIT
+    SetEnv rate-limit 100
+</IfModule>
+
+# ============================================================
+# BLOCK IP ADDRESSES (Add known malicious IPs)
+# ============================================================
+
+# Example: Order Deny,Allow
+# Deny from 192.168.1.100
+# Deny from 10.0.0.0/8
+
+# ============================================================
+# PROTECT SPECIFIC FILES
+# ============================================================
+
+# Block access to PHP files in certain directories
+<Directory "api">
+    <FilesMatch "\.php$">
+        Order Allow,Deny
+        Deny from all
+    </FilesMatch>
+</Directory>
+
+# Allow only specific PHP files
+<Files "api.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "paypal_ipn.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "webhook.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "user_status.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "ia_fetch.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "proxy.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "discovery_trigger.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# Block all other PHP files
+<FilesMatch "\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ============================================================
+# ERROR PAGES
+# ============================================================
+
+ErrorDocument 403 /403.html
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
+ErrorDocument 400 /400.html
+ErrorDocument 405 /403.html
+ErrorDocument 429 /429.html
+
+# Create 400.html and 429.html if needed
+# 429.html should say "Rate limit exceeded"
+
+# ============================================================
+# CORS CONFIGURATION
+# ============================================================
+
+<IfModule mod_headers.c>
+    # Restrict CORS to your domains only
+    SetEnvIf Origin "^https://(www\.)?(kord\.gg)$" ALLOWED_ORIGIN=$0
+    Header set Access-Control-Allow-Origin "%{ALLOWED_ORIGIN}e" env=ALLOWED_ORIGIN
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+    Header set Access-Control-Max-Age 86400
+</IfModule>
+
+# ============================================================
+# CACHE CONTROL
+# ============================================================
+
+<IfModule mod_headers.c>
+    # Disable cache for dynamic content
+    <FilesMatch "\.(php)$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+    </FilesMatch>
+    
+    # Cache static assets
+    <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "public, max-age=31536000"
+    </FilesMatch>
+</IfModule>
+
+# ============================================================
+# FILE UPLOAD SECURITY
+# ============================================================
+
+# Limit file upload size to 1MB
+LimitRequestBody 1048576
+
+# ============================================================
+# PROTECTION AGAINST COMMON ATTACKS
+# ============================================================
+
+# Block SQL Injection
+<IfModule mod_rewrite.c>
+    RewriteCond %{QUERY_STRING} SELECT\s+(FROM|ALL|DISTINCT) [NC,OR]
+    RewriteCond %{QUERY_STRING} UNION\s+SELECT [NC,OR]
+    RewriteCond %{QUERY_STRING} DROP\s+TABLE [NC,OR]
+    RewriteCond %{QUERY_STRING} INSERT\s+INTO [NC,OR]
+    RewriteCond %{QUERY_STRING} DELETE\s+FROM [NC,OR]
+    RewriteCond %{QUERY_STRING} exec\s*\( [NC,OR]
+    RewriteCond %{QUERY_STRING} xp_cmdshell [NC]
+    RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+# Block XSS
+<IfModule mod_rewrite.c>
+    RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} (<|%3C).*iframe.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,}) [NC,OR]
+    RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,}) [NC]
+    RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+# ============================================================
+# Honeypot redirects for known hacker tools
+# ============================================================
+
+<IfModule mod_rewrite.c>
+    # Block common scanner/user-agents
+    SetEnvIfNoCase User-Agent "sqlmap" blocked
+    SetEnvIfNoCase User-Agent "nikto" blocked
+    SetEnvIfNoCase User-Agent "nmap" blocked
+    SetEnvIfNoCase User-Agent "masscan" blocked
+    SetEnvIfNoCase User-Agent "hydra" blocked
+    SetEnvIfNoCase User-Agent "metasploit" blocked
+    SetEnvIfNoCase User-Agent "burpsuite" blocked
+    SetEnvIfNoCase User-Agent "wget" blocked
+    SetEnvIfNoCase User-Agent "curl" blocked
+    SetEnvIfNoCase User-Agent "python-requests" blocked
+    SetEnvIfNoCase User-Agent "scrapy" blocked
+    
+    <RequireAll>
+        Require env blocked
+        Require env !ALLOWED_ORIGIN
+    </RequireAll>
+</IfModule>
+
+# ============================================================
+# COMPLEX SECURITY HEADERS (Advanced)
+# ============================================================
+
+<IfModule mod_headers.c>
+    # Expect-CT
+    Header always set Expect-CT "max-age=86400, enforce, report-uri=\"https://kord.gg/ct-report\""
+    
+    # Feature Policy (older browsers)
+    Header always set Feature-Policy "accelerometer 'none'; camera 'none'; microphone 'none'; geolocation 'none'"
+</IfModule>
+
+# ============================================================
+# REQUEST LIMITS
+# ============================================================
+
+<IfModule mod_reqtimeout.c>
+    RequestReadTimeout header=20-40,MinRate=500 body=20,MinRate=500
+</IfModule>
+
+# ============================================================
+# KEEP ALIVE
+# ============================================================
+
+<IfModule mod_headers.c>
+    Header set Connection "keep-alive"
+</IfModule>
+
+# ============================================================
+# COMPRESSION
+# ============================================================
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/xml
+</IfModule>
